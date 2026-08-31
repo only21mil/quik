@@ -30,21 +30,18 @@ import dev.octoshrimpy.quik.common.util.extensions.toPerson
 import dev.octoshrimpy.quik.feature.compose.ComposeActivity
 import dev.octoshrimpy.quik.model.Conversation
 import dev.octoshrimpy.quik.repository.ConversationRepository
-import dev.octoshrimpy.quik.repository.MessageRepository
-import me.leolin.shortcutbadger.ShortcutBadger
 import timber.log.Timber
 import javax.inject.Inject
 
 class ShortcutManagerImpl @Inject constructor(
     private val context: Context,
     private val conversationRepo: ConversationRepository,
-    private val messageRepo: MessageRepository,
     private val colors: Colors
 ) : dev.octoshrimpy.quik.manager.ShortcutManager {
 
     override fun updateBadge() {
-        val count = messageRepo.getUnreadCount().toInt()
-        ShortcutBadger.applyCount(context, count)
+        // NotificationManagerImpl supplies the unread count to NotificationCompat.
+        // Android launchers use that notification for the standard app icon badge.
     }
 
     /**

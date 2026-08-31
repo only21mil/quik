@@ -23,6 +23,36 @@ import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 
 open class EmojiReaction : RealmObject() {
+    companion object {
+        /**
+         * Reaction IDs occupy the negative half of the Long range while message IDs and legacy
+         * reaction IDs occupy the positive half. Deriving the ID from the carrier also makes an
+         * already-persisted carrier idempotent across process restarts.
+         */
+        fun idForReactionMessage(reactionMessageId: Long): Long {
+            require(reactionMessageId != Long.MIN_VALUE) { "Reaction message ID is out of range" }
+            require(reactionMessageId > 0) { "Reaction message ID must be positive" }
+            return -reactionMessageId
+        }
+
+        /** Derives carrier direction when the provider box has an unambiguous meaning. */
+        fun fromMeForCarrier(type: String?, boxId: Int): Boolean? = when (type) {
+            Message.TYPE_SMS -> when (boxId) {
+                0, 1 -> false
+                2, 3, 4, 5, 6 -> true
+                else -> null
+            }
+
+            Message.TYPE_MMS -> when (boxId) {
+                0, 1 -> false
+                2, 3, 4, 5 -> true
+                else -> null
+            }
+
+            else -> null
+        }
+    }
+
     @PrimaryKey var id: Long = 0
 
     /** The reaction message ID itself */
@@ -39,4 +69,7 @@ open class EmojiReaction : RealmObject() {
 
     /** Thread ID for easier querying */
     @Index var threadId: Long = 0
+
+    /** Whether the reaction carrier was sent by this device, or null when legacy data is unknown. */
+    var fromMe: Boolean? = null
 }

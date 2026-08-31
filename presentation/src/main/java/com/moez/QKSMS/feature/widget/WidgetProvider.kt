@@ -171,7 +171,8 @@ class WidgetProvider : AppWidgetProvider() {
             PendingIntent.getBroadcast(
                 context,
                 1,
-                Intent(context, StartActivityFromWidgetReceiver::class.java),
+                Intent(context, StartActivityFromWidgetReceiver::class.java)
+                    .setAction(StartActivityFromWidgetReceiver.ACTION_START_ACTIVITY),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
         )

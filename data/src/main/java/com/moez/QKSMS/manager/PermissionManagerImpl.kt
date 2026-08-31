@@ -64,12 +64,9 @@ class PermissionManagerImpl @Inject constructor(private val context: Context) : 
         return hasPermission(Manifest.permission.READ_PHONE_STATE)
     }
 
-    override fun hasCalling(): Boolean {
-        return hasPermission(Manifest.permission.CALL_PHONE)
-    }
-
     override fun hasStorage(): Boolean {
-        return hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
     override fun hasRecordAudio(): Boolean {

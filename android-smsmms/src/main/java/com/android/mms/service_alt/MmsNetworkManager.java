@@ -34,7 +34,7 @@ import com.squareup.okhttp.ConnectionPool;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class MmsNetworkManager implements com.squareup.okhttp.internal.Network {
+class MmsNetworkManager implements com.squareup.okhttp.internal.Network {
     // Timeout used to call ConnectivityManager.requestNetwork
     private static final int NETWORK_REQUEST_TIMEOUT_MILLIS = 60 * 1000;
     // Wait timeout for this class, a little bit longer than the above timeout
@@ -77,7 +77,7 @@ public class MmsNetworkManager implements com.squareup.okhttp.internal.Network {
 
     private boolean permissionError = false;
 
-    public MmsNetworkManager(Context context, int subId) {
+    MmsNetworkManager(Context context, int subId) {
         mContext = context;
         mNetworkCallback = null;
         mNetwork = null;

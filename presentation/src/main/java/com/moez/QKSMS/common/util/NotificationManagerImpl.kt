@@ -345,8 +345,7 @@ class NotificationManagerImpl @Inject constructor(
 
                         Preferences.NOTIFICATION_ACTION_CALL -> {
                             val address = conversation.recipients[0]?.address
-                            val intentAction = if (permissions.hasCalling()) Intent.ACTION_CALL else Intent.ACTION_DIAL
-                            val intent = Intent(intentAction, "tel:$address".toUri())
+                            val intent = Intent(Intent.ACTION_DIAL, "tel:$address".toUri())
                             val pi = PendingIntent.getActivity(context, threadId.toInt(), intent,
                                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                             NotificationCompat.Action.Builder(R.drawable.ic_call_white_24dp, actionLabels[action], pi)
@@ -354,7 +353,9 @@ class NotificationManagerImpl @Inject constructor(
                         }
 
                         Preferences.NOTIFICATION_ACTION_SPEAK -> {
-                            val intent = Intent(context, SpeakThreadsReceiver::class.java).putExtra("threadId", threadId)
+                            val intent = Intent(context, SpeakThreadsReceiver::class.java)
+                                .setAction(SpeakThreadsReceiver.ACTION_SPEAK_MESSAGES)
+                                .putExtra(SpeakThreadsReceiver.EXTRA_THREAD_ID, threadId)
                             val pi = PendingIntent.getBroadcast(context, 0, intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                             NotificationCompat.Action.Builder(R.drawable.ic_speaker_black_24dp, actionLabels[action], pi)

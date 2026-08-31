@@ -21,15 +21,111 @@ apply plugin: 'realm-android' // Realm needs to be before Kotlin or the build wi
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
+def releaseSigningEnvironment = [
+        keystorePath: System.getenv('QUIK_RELEASE_KEYSTORE_PATH'),
+        keyAlias: System.getenv('QUIK_RELEASE_KEY_ALIAS'),
+        storePassword: System.getenv('QUIK_RELEASE_STORE_PASSWORD'),
+        keyPassword: System.getenv('QUIK_RELEASE_KEY_PASSWORD'),
+        approvedBy: System.getenv('QUIK_RELEASE_SIGNING_APPROVED_BY'),
+        approvalRef: System.getenv('QUIK_RELEASE_SIGNING_APPROVAL_REF'),
+]
+
+def releaseSigningProblems = {
+    def problems = []
+    def requiredValues = [
+            QUIK_RELEASE_KEYSTORE_PATH: releaseSigningEnvironment.keystorePath,
+            QUIK_RELEASE_KEY_ALIAS: releaseSigningEnvironment.keyAlias,
+            QUIK_RELEASE_STORE_PASSWORD: releaseSigningEnvironment.storePassword,
+            QUIK_RELEASE_KEY_PASSWORD: releaseSigningEnvironment.keyPassword,
+            QUIK_RELEASE_SIGNING_APPROVED_BY: releaseSigningEnvironment.approvedBy,
+            QUIK_RELEASE_SIGNING_APPROVAL_REF: releaseSigningEnvironment.approvalRef,
+    ]
+
+    requiredValues.each { name, value ->
+        if (value == null || value.trim().isEmpty()) {
+            problems.add("${name} is required")
+        }
+    }
+
+    if (releaseSigningEnvironment.approvedBy != null &&
+            !releaseSigningEnvironment.approvedBy.trim().isEmpty() &&
+            !['Victor', 'Rachel'].contains(releaseSigningEnvironment.approvedBy)) {
+        problems.add('QUIK_RELEASE_SIGNING_APPROVED_BY must be Victor or Rachel')
+    }
+
+    if (releaseSigningEnvironment.keystorePath != null &&
+            !releaseSigningEnvironment.keystorePath.trim().isEmpty()) {
+        def configuredFile = new File(releaseSigningEnvironment.keystorePath.trim())
+        if (!configuredFile.isAbsolute()) {
+            problems.add('QUIK_RELEASE_KEYSTORE_PATH must be absolute')
+        } else {
+            try {
+                def configuredPath = configuredFile.toPath()
+                def canonicalPath = configuredFile.canonicalFile.toPath()
+                def repositoryPath = rootProject.projectDir.canonicalFile.toPath()
+
+                if (canonicalPath.startsWith(repositoryPath)) {
+                    problems.add('QUIK_RELEASE_KEYSTORE_PATH must resolve outside the repository')
+                }
+                if (java.nio.file.Files.isSymbolicLink(configuredPath)) {
+                    problems.add('QUIK_RELEASE_KEYSTORE_PATH must not be a symbolic link')
+                }
+                if (!java.nio.file.Files.isRegularFile(
+                        configuredPath, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+                    problems.add('QUIK_RELEASE_KEYSTORE_PATH must name an existing regular file')
+                } else {
+                    def owner = java.nio.file.Files.getOwner(
+                            configuredPath, java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                    def processUser = java.lang.ProcessHandle.current().info().user().orElse(null)
+                    if (processUser == null || processUser.isEmpty()) {
+                        throw new IllegalStateException('effective process user is unavailable')
+                    }
+                    def processPrincipal = configuredPath.fileSystem.userPrincipalLookupService
+                            .lookupPrincipalByName(processUser)
+                    if (!owner.equals(processPrincipal)) {
+                        problems.add(
+                                'QUIK_RELEASE_KEYSTORE_PATH must be owned by the effective signing user')
+                    }
+
+                    def permissions = java.nio.file.Files.getPosixFilePermissions(configuredPath)
+                    if (!permissions.contains(java.nio.file.attribute.PosixFilePermission.OWNER_READ)) {
+                        problems.add('QUIK_RELEASE_KEYSTORE_PATH must be readable by its owner')
+                    }
+                    if (permissions.any { permission ->
+                        permission.name().startsWith('GROUP_') ||
+                                permission.name().startsWith('OTHERS_')
+                    }) {
+                        problems.add('QUIK_RELEASE_KEYSTORE_PATH must not grant group or other access')
+                    }
+                }
+            } catch (Exception ignored) {
+                problems.add('QUIK_RELEASE_KEYSTORE_PATH metadata could not be verified')
+            }
+        }
+    }
+
+    problems
+}
+
+def requireReleaseSigningConfiguration = {
+    def problems = releaseSigningProblems()
+    if (!problems.isEmpty()) {
+        throw new GradleException(
+                'Release signing configuration rejected:\n - ' + problems.join('\n - ') +
+                        '\nSee docs/release-signing.md.')
+    }
+}
+
 android {
     compileSdk 34
 
     defaultConfig {
-        applicationId 'dev.octoshrimpy.quik'
+        applicationId 'io.github.only21mil.quik.reactions'
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 2238
-        versionName '4.3.6'
+        // Fork builds use upstreamCode * 1000 + forkRevision. See docs/fork-identity.md.
+        versionCode 2238001
+        versionName '4.3.6-reactions.1'
         setProperty("archivesBaseName", "QUIK-v${versionName}")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,17 +133,13 @@ android {
     signingConfigs {
         debug // Uses the default debug keystore.
         release {
-            def keystoreProps = new Properties()
-            def keystorePropsFile = rootProject.file('./.gradle/.gradlerc')
-            storeFile file('./my-release-key.keystore')
-            keyAlias 'quik_release'
-            if (keystorePropsFile.exists()) {
-                keystoreProps.load(new FileInputStream(keystorePropsFile))
-            } else {
-                // do nothing
+            if (releaseSigningProblems().isEmpty()) {
+                storeFile new File(releaseSigningEnvironment.keystorePath.trim()).canonicalFile
+                storeType 'PKCS12'
+                keyAlias releaseSigningEnvironment.keyAlias.trim()
+                storePassword releaseSigningEnvironment.storePassword
+                keyPassword releaseSigningEnvironment.keyPassword
             }
-            storePassword keystoreProps['storePassword']
-            keyPassword keystoreProps['keyPassword']
         }
     }
 
@@ -68,8 +160,7 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
-            resValue("string", "app_name", "QUIK-Debug")
-            resValue("string", "application_id", defaultConfig.applicationId)
+            resValue("string", "app_name", "QUIK Reactions Debug")
             signingConfig signingConfigs.debug
         }
         fdroid {
@@ -79,6 +170,8 @@ android {
             signingConfig signingConfigs.release
             matchingFallbacks = ['release']
             applicationIdSuffix ".fdroid"
+            versionNameSuffix "-fdroid"
+            resValue("string", "app_name", "QUIK Reactions F-Droid")
         }
     }
 
@@ -92,17 +185,15 @@ android {
     }
 
     lint {
-        abortOnError false
+        abortOnError true
+        // AutoDispose 1.3.0 uses a module-analysis API that AGP 8.2 rejects.
+        disable 'AutoDispose'
+        baseline file("lint-baseline.xml")
     }
     namespace 'dev.octoshrimpy.quik'
     buildFeatures {
         buildConfig true
         viewBinding true
-    }
-    if (System.getenv("CI") == "true") {
-        signingConfigs.release.storePassword = System.getenv("keystore_password")
-        signingConfigs.release.keyAlias = System.getenv("key_alias")
-        signingConfigs.release.keyPassword = System.getenv("key_password")
     }
 }
 
@@ -205,7 +296,6 @@ dependencies {
     implementation "com.github.google:flexbox-layout:0.3.1"
     implementation "com.jakewharton.timber:timber:$timber_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-    implementation "me.leolin:ShortcutBadger:1.1.22"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(":android-smsmms")
     implementation project(":common")
@@ -213,12 +303,45 @@ dependencies {
     implementation project(':domain')
 
 }
-// Check to make sure that the keystore file is present when building a release
-gradle.taskGraph.whenReady { taskGraph ->
-    if ((taskGraph.hasTask(':assembleRelease') ||
-            taskGraph.allTasks.any { it.name == 'assembleRelease' }) &&
-            !file('./.gradle/.gradlerc').exists() &&
-            System.getenv("CI") != "true") {
-        throw new GradleException("Keystore properties file not found")
+tasks.register('validateReleaseSigningConfiguration') {
+    group = 'verification'
+    description = 'Validates approved out-of-tree release signing inputs without reading the keystore.'
+    doLast {
+        requireReleaseSigningConfiguration()
     }
+}
+
+def releaseArtifactTaskNames = [
+        'assembleRelease',
+        'bundleRelease',
+        'packageRelease',
+        'packageReleaseBundle',
+        'packageReleaseUniversalApk',
+        'signReleaseBundle',
+        'assembleFdroid',
+        'bundleFdroid',
+        'packageFdroid',
+        'packageFdroidBundle',
+        'packageFdroidUniversalApk',
+        'signFdroidBundle',
+] as Set
+
+// Reject release artifact tasks before they can package or sign anything.
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.allTasks.any { task ->
+        task.project == project && releaseArtifactTaskNames.contains(task.name)
+    }) {
+        requireReleaseSigningConfiguration()
+    }
+}
+
+tasks.register('checkMergedManifestAuthority', Exec) {
+    group = 'verification'
+    description = 'Checks permissions, queries, and default-SMS-role components in every packaged manifest.'
+    dependsOn 'processDebugMainManifest', 'processReleaseMainManifest', 'processFdroidMainManifest'
+    commandLine 'python3', rootProject.file('scripts/check-merged-manifest-authority.py'), rootProject.projectDir
+}
+
+tasks.named('check') {
+    dependsOn 'checkMergedManifestAuthority'
 }

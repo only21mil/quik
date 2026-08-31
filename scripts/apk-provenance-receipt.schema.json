@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:only21mil:quik:apk-provenance-receipt:3",
+  "title": "QUIK debug APK provenance receipt version 3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_type", "schema_version", "schema", "result", "repository",
+    "acquisition", "github_repository", "source", "policy", "github_run",
+    "github_artifact", "archive", "apk", "delivery", "tools"
+  ],
+  "properties": {
+    "receipt_type": { "const": "only21mil.quik.debug-apk-provenance" },
+    "schema_version": { "const": 3 },
+    "schema": {
+      "type": "object", "additionalProperties": false, "required": ["id", "sha256"],
+      "properties": {
+        "id": { "const": "urn:only21mil:quik:apk-provenance-receipt:3" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "result": { "const": "pass" },
+    "repository": { "const": "only21mil/quik" },
+    "acquisition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "tool", "hostname_pinned", "authenticated", "caller_supplied_evidence"],
+      "properties": {
+        "provider": { "const": "github.com" },
+        "tool": { "const": "gh" },
+        "hostname_pinned": { "const": true },
+        "authenticated": { "const": true },
+        "caller_supplied_evidence": { "const": false }
+      }
+    },
+    "github_repository": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "full_name", "url", "metadata_sha256"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "full_name": { "const": "only21mil/quik" },
+        "url": { "const": "https://github.com/only21mil/quik" },
+        "metadata_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "commit", "ref", "git_clean", "relation", "commit_url", "archive", "license"],
+      "properties": {
+        "kind": { "const": "git-head" },
+        "commit": { "$ref": "#/$defs/commit" },
+        "ref": { "const": "refs/heads/main" },
+        "git_clean": { "const": true },
+        "relation": { "const": "checkout-head-equals-github-run-head" },
+        "commit_url": { "type": "string", "pattern": "^https://github\\.com/only21mil/quik/tree/[0-9a-f]{40}$" },
+        "archive": {
+          "type": "object", "additionalProperties": false,
+          "required": ["api_path", "url", "sha256", "size_bytes", "file_count", "exact_git_file_set"],
+          "properties": {
+            "api_path": { "type": "string", "pattern": "^repos/only21mil/quik/tarball/[0-9a-f]{40}$" },
+            "url": { "type": "string", "pattern": "^https://api\\.github\\.com/repos/only21mil/quik/tarball/[0-9a-f]{40}$" },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "size_bytes": { "type": "integer", "minimum": 1 },
+            "file_count": { "type": "integer", "minimum": 1 },
+            "exact_git_file_set": { "const": true }
+          }
+        },
+        "license": {
+          "type": "object", "additionalProperties": false,
+          "required": ["path", "url", "sha256", "spdx", "exact_git_blob"],
+          "properties": {
+            "path": { "const": "LICENSE" },
+            "url": { "type": "string", "pattern": "^https://github\\.com/only21mil/quik/blob/[0-9a-f]{40}/LICENSE$" },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "spdx": { "const": "GPL-3.0-or-later" },
+            "exact_git_blob": { "const": true }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object", "additionalProperties": false, "required": ["schema_version", "validator_version", "sha256"],
+      "properties": {
+        "schema_version": { "const": 3 }, "validator_version": { "const": 3 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "github_run": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "node_id", "run_number", "run_attempt", "workflow_id", "check_suite_id", "head_sha", "status", "conclusion", "event", "head_branch", "workflow_name", "workflow_path", "repository_id", "url", "metadata_sha256"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" }, "node_id": { "$ref": "#/$defs/nonempty" },
+        "run_number": { "type": "integer", "minimum": 1 }, "run_attempt": { "type": "integer", "minimum": 1 },
+        "workflow_id": { "$ref": "#/$defs/id" }, "check_suite_id": { "$ref": "#/$defs/id" },
+        "head_sha": { "$ref": "#/$defs/commit" }, "status": { "const": "completed" },
+        "conclusion": { "const": "success" }, "event": { "const": "push" },
+        "head_branch": { "const": "main" }, "workflow_name": { "const": "Android main" },
+        "workflow_path": { "const": ".github/workflows/android-main.yml" },
+        "repository_id": { "$ref": "#/$defs/id" },
+        "url": { "type": "string", "pattern": "^https://github\\.com/only21mil/quik/actions/runs/[1-9][0-9]*$" },
+        "metadata_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "github_artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "node_id", "name", "size_in_bytes", "digest", "expired", "url", "archive_download_url", "workflow_run_id", "head_sha", "repository_id", "metadata_sha256"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" }, "node_id": { "$ref": "#/$defs/nonempty" },
+        "name": { "type": "string", "pattern": "^quik-android-debug-[0-9a-f]{40}$" },
+        "size_in_bytes": { "type": "integer", "minimum": 1 },
+        "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "expired": { "const": false },
+        "url": { "type": "string", "pattern": "^https://api\\.github\\.com/repos/only21mil/quik/actions/artifacts/[1-9][0-9]*$" },
+        "archive_download_url": { "type": "string", "pattern": "^https://api\\.github\\.com/repos/only21mil/quik/actions/artifacts/[1-9][0-9]*/zip$" },
+        "workflow_run_id": { "$ref": "#/$defs/id" }, "head_sha": { "$ref": "#/$defs/commit" },
+        "repository_id": { "$ref": "#/$defs/id" }, "metadata_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "archive": {
+      "type": "object", "additionalProperties": false,
+      "required": ["filename", "sha256", "size_bytes", "zip_integrity", "entries", "embedded_checksum"],
+      "properties": {
+        "filename": { "const": "artifact.zip" }, "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 1 }, "zip_integrity": { "const": "pass" },
+        "entries": { "const": ["QUIK-debug.apk", "QUIK-debug.apk.sha256"] },
+        "embedded_checksum": { "const": "pass" }
+      }
+    },
+    "apk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["filename", "sha256", "size_bytes", "zip_integrity", "package_name", "debuggable", "version_code", "version_name", "min_sdk", "target_sdk", "signer", "permissions", "declared_permissions", "sensitive_permissions", "exported_components", "exported_component_permissions", "exported_intent_filters"],
+      "properties": {
+        "filename": { "const": "QUIK-debug.apk" }, "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 1 }, "zip_integrity": { "const": "pass" },
+        "package_name": { "const": "io.github.only21mil.quik.reactions.debug" }, "debuggable": { "const": true },
+        "version_code": { "const": "2238001" }, "version_name": { "const": "4.3.6-reactions.1-debug" },
+        "min_sdk": { "const": "23" }, "target_sdk": { "const": "33" },
+        "signer": {
+          "type": "object", "additionalProperties": false,
+          "required": ["certificate_sha256", "mode", "expected_certificate_sha256", "identity_bound", "limitation"],
+          "properties": {
+            "certificate_sha256": { "$ref": "#/$defs/sha256" },
+            "mode": { "const": "ephemeral-github-actions-debug" },
+            "expected_certificate_sha256": { "type": "null" }, "identity_bound": { "const": false },
+            "limitation": { "$ref": "#/$defs/nonempty" }
+          }
+        },
+        "permissions": { "$ref": "#/$defs/string_set" },
+        "declared_permissions": { "$ref": "#/$defs/string_set" },
+        "sensitive_permissions": { "$ref": "#/$defs/string_set" },
+        "exported_components": { "$ref": "#/$defs/string_set" },
+        "exported_component_permissions": { "$ref": "#/$defs/string_set" },
+        "exported_intent_filters": {
+          "type": "array", "uniqueItems": true,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["component", "filters"],
+            "properties": {
+              "component": { "$ref": "#/$defs/nonempty" },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["actions", "categories", "data_schemes", "data_mime_types"],
+                  "properties": {
+                    "actions": { "$ref": "#/$defs/string_set" }, "categories": { "$ref": "#/$defs/string_set" },
+                    "data_schemes": { "$ref": "#/$defs/string_set" }, "data_mime_types": { "$ref": "#/$defs/string_set" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "delivery": {
+      "type": "object", "additionalProperties": false,
+      "required": ["result", "artifact", "corresponding_source", "license"],
+      "properties": {
+        "result": { "const": "complete" }, "artifact": { "const": "authenticated-exact-archive" },
+        "corresponding_source": { "const": "authenticated-exact-commit-archive" }, "license": { "const": "GPL-3.0-or-later" }
+      }
+    },
+    "tools": {
+      "type": "object", "additionalProperties": false,
+      "required": ["git", "gh", "jq", "unzip", "tar", "aapt", "apksigner", "sha256sum", "stat"],
+      "properties": {
+        "git": { "$ref": "#/$defs/tool_version" }, "gh": { "$ref": "#/$defs/tool_version" },
+        "jq": { "$ref": "#/$defs/tool_version" }, "unzip": { "$ref": "#/$defs/tool_version" },
+        "tar": { "$ref": "#/$defs/tool_version" }, "aapt": { "$ref": "#/$defs/tool_version" },
+        "apksigner": { "$ref": "#/$defs/tool_version" }, "sha256sum": { "$ref": "#/$defs/tool_version" },
+        "stat": { "$ref": "#/$defs/tool_version" }
+      }
+    }
+  },
+  "$defs": {
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "id": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "nonempty": { "type": "string", "minLength": 1 },
+    "string_set": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "tool_version": { "type": "string", "minLength": 1, "maxLength": 256 }
+  }
+}

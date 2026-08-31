@@ -1,0 +1,112 @@
+name: Android PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Android PR / verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Confirm exact PR head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual_head="$(git rev-parse HEAD)"
+          test "$actual_head" = "$EXPECTED_HEAD" || {
+            echo "Expected PR head $EXPECTED_HEAD, checked out $actual_head" >&2
+            exit 1
+          }
+
+      - name: Audit workflow safety
+        run: bash scripts/tests/test-workflow-safety.sh
+
+      - name: Classify changed paths
+        id: paths
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE_SHA}^{commit}"
+          git cat-file -e "${HEAD_SHA}^{commit}"
+
+          changed_paths="$(mktemp)"
+          trap 'rm -f "$changed_paths"' EXIT
+          git diff --name-only --no-renames --diff-filter=ACDMRTUXB -z \
+            "${BASE_SHA}...${HEAD_SHA}" > "$changed_paths"
+
+          android=false
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              android-smsmms/*|common/*|data/*|domain/*|presentation/*|scripts/check-merged-manifest-authority.py|scripts/fixtures/merged-manifest-authority-negative.json|scripts/tests/test-release-config.sh|gradle/*|build.gradle|settings.gradle|gradle.properties|gradlew|gradlew.bat|.github/workflows/android-pr.yml|.github/workflows/android-main.yml)
+                android=true
+                break
+                ;;
+            esac
+          done < "$changed_paths"
+
+          echo "android=$android" >> "$GITHUB_OUTPUT"
+          echo "Android verification required: $android"
+
+      - name: Validate Gradle wrapper
+        if: steps.paths.outputs.android == 'true'
+        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Set up JDK 17
+        if: steps.paths.outputs.android == 'true'
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        if: steps.paths.outputs.android == 'true'
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          cache-read-only: true
+
+      - name: Assemble debug APK
+        if: steps.paths.outputs.android == 'true'
+        run: ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Test release configuration guard
+        if: steps.paths.outputs.android == 'true'
+        run: bash scripts/tests/test-release-config.sh
+
+      - name: Compile Android instrumentation tests
+        if: steps.paths.outputs.android == 'true'
+        run: ./gradlew --no-daemon --stacktrace assembleDebugAndroidTest
+
+      - name: Verify merged manifest authority
+        if: steps.paths.outputs.android == 'true'
+        run: ./gradlew --no-daemon --stacktrace :presentation:checkMergedManifestAuthority
+
+      - name: Run Android lint
+        if: steps.paths.outputs.android == 'true'
+        run: ./gradlew --no-daemon --stacktrace lint
+
+      - name: Run unit tests
+        if: steps.paths.outputs.android == 'true'
+        run: ./gradlew --no-daemon --stacktrace test

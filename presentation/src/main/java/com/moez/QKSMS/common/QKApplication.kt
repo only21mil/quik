@@ -34,6 +34,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.HasBroadcastReceiverInjector
 import dagger.android.HasServiceInjector
+import dev.octoshrimpy.quik.BuildConfig
 import dev.octoshrimpy.quik.R
 import dev.octoshrimpy.quik.common.util.FileLoggingTree
 import dev.octoshrimpy.quik.injection.AppComponentManager
@@ -43,6 +44,7 @@ import dev.octoshrimpy.quik.manager.BillingManager
 import dev.octoshrimpy.quik.manager.ReferralManager
 import dev.octoshrimpy.quik.migration.QkMigration
 import dev.octoshrimpy.quik.migration.QkRealmMigration
+import dev.octoshrimpy.quik.repository.SyncRepository
 import dev.octoshrimpy.quik.util.NightModeManager
 import dev.octoshrimpy.quik.worker.HousekeepingWorker
 import io.realm.Realm
@@ -69,6 +71,7 @@ class QKApplication : Application(), HasActivityInjector, HasBroadcastReceiverIn
     @Inject lateinit var nightModeManager: NightModeManager
     @Inject lateinit var realmMigration: QkRealmMigration
     @Inject lateinit var referralManager: ReferralManager
+    @Inject lateinit var syncRepository: SyncRepository
     @Inject lateinit var workerFactory: WorkerFactory
 
     override fun onCreate() {
@@ -90,6 +93,11 @@ class QKApplication : Application(), HasActivityInjector, HasBroadcastReceiverIn
         qkMigration.performMigration()
 
         GlobalScope.launch(Dispatchers.IO) {
+            try {
+                syncRepository.reconcileReactionAttempts()
+            } catch (_: Exception) {
+                Timber.w("reaction attempt startup reconciliation failed")
+            }
             referralManager.trackReferrer()
             billingManager.checkForPurchases()
             billingManager.queryProducts()
@@ -97,8 +105,10 @@ class QKApplication : Application(), HasActivityInjector, HasBroadcastReceiverIn
 
         nightModeManager.updateCurrentTheme()
 
-        // configure timber logging
-        Timber.plant(Timber.DebugTree(), fileLoggingTree)
+        // Logcat is useful for local development, but it must not receive production messages.
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree(), fileLoggingTree)
+        }
 
         // configure emoji compatibility with bundled package
         // (bundled library works with no play-services/gsm os versions)

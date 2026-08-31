@@ -28,6 +28,7 @@ import android.provider.Telephony.Sms;
 import android.provider.Telephony.Sms.Inbox;
 import android.telephony.SmsMessage;
 import android.util.Log; import static com.klinker.android.timberworkarounds.TimberExtensionsKt.Timber_isLoggable; // inserted with sed
+import timber.log.Timber;
 
 import com.android.mms.logs.LogTag;
 
@@ -37,7 +38,6 @@ import com.android.mms.logs.LogTag;
  */
 public class MessageStatusService extends IntentService {
     private static final String[] ID_PROJECTION = new String[] { Sms._ID };
-    private static final String LOG_TAG = LogTag.TAG;
     private static final Uri STATUS_URI = Uri.parse("content://sms/status");
 
     public MessageStatusService() {
@@ -90,8 +90,7 @@ public class MessageStatusService extends IntentService {
                 ContentValues contentValues = new ContentValues(2);
 
                 if (Timber_isLoggable(LogTag.TAG, Log.DEBUG)) {
-                    log("updateMessageStatus: msgUrl=" + messageUri + ", status=" + status +
-                            ", isStatusReport=" + isStatusReport);
+                    log(status, isStatusReport);
                 }
 
                 contentValues.put(Sms.STATUS, status);
@@ -99,7 +98,7 @@ public class MessageStatusService extends IntentService {
                 SqliteWrapper.update(context, context.getContentResolver(),
                                     updateUri, contentValues, null, null);
             } else {
-                error("Can't find message for status update: " + messageUri);
+                error();
             }
         } finally {
             cursor.close();
@@ -107,11 +106,11 @@ public class MessageStatusService extends IntentService {
         return message;
     }
 
-    private void error(String message) {
-        Log.e(LOG_TAG, "[MessageStatusReceiver] " + message);
+    private void error() {
+        Timber.e("SMS status update target was not found");
     }
 
-    private void log(String message) {
-        Log.d(LOG_TAG, "[MessageStatusReceiver] " + message);
+    private void log(int status, boolean isStatusReport) {
+        Timber.d("SMS status updated: status=%d, report=%b", status, isStatusReport);
     }
 }

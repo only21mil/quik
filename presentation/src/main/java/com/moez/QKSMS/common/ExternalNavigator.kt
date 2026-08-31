@@ -31,7 +31,6 @@ import android.provider.Telephony
 import androidx.core.net.toUri
 import dev.octoshrimpy.quik.BuildConfig
 import dev.octoshrimpy.quik.manager.BillingManager
-import dev.octoshrimpy.quik.manager.PermissionManager
 import javax.inject.Inject
 import dev.octoshrimpy.quik.feature.notificationprefs.NotificationPrefsActivity
 import dev.octoshrimpy.quik.manager.NotificationManager
@@ -43,7 +42,6 @@ import dev.octoshrimpy.quik.manager.NotificationManager
 class ExternalNavigator @Inject constructor(
     context: Context,
     private val billingManager: BillingManager,
-    private val permissions: PermissionManager,
     private val notificationManager: NotificationManager
 ) : QkNavigator(context) {
     fun showDeveloper() =
@@ -57,8 +55,7 @@ class ExternalNavigator @Inject constructor(
         openExternalActivity("https://github.com/quik-sms/quik/blob/master/LICENSE")
 
     fun makePhoneCall(address: String) {
-        val action = if (permissions.hasCalling()) Intent.ACTION_CALL else Intent.ACTION_DIAL
-        val intent = Intent(action, "tel:$address".toUri())
+        val intent = Intent(Intent.ACTION_DIAL, "tel:$address".toUri())
         startActivityExternal(intent)
     }
 

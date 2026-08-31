@@ -1,0 +1,3124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.2)" variant="all" version="8.2.2">
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ServiceState.getOperatorNumeric: android.permission.ACCESS_FINE_LOCATION or android.permission.ACCESS_COARSE_LOCATION"
+        errorLine1="                mcc = Integer.parseInt(new ServiceState().getOperatorNumeric().substring(0, 3));"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="208"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getCellLocation: android.permission.ACCESS_FINE_LOCATION"
+        errorLine1="                mnc = ((CdmaCellLocation) tm.getCellLocation()).getSystemId();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="214"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getLine1Number: android.permission.READ_PHONE_STATE or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS"
+        errorLine1="                String line1Number = ((TelephonyManager)context"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="174"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getLine1Number: android.permission.READ_PHONE_STATE or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS"
+        errorLine1="                return telephonyManager.getLine1Number();"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="562"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getLine1Number: android.permission.READ_PHONE_STATE or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS"
+        errorLine1="                    return telephonyManager.getLine1Number();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="568"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by SubscriptionManager.getActiveSubscriptionInfoList: android.permission.READ_PHONE_STATE"
+        errorLine1="            List&lt;SubscriptionInfo> subs = mSubscriptionManager.getActiveSubscriptionInfoList();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="154"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="        NetworkInfo mmsNetworkInfo = connectivityManager.getNetworkInfo(network);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsNetworkManager.java"
+            line="320"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                NetworkInfo niWF = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="298"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                NetworkInfo niWF = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MmsSystemEventReceiver.java"
+            line="75"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                NetworkInfo mmsNetworkInfo = mConnMgr"
+        errorLine2="                                             ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/MmsSystemEventReceiver.java"
+            line="87"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getSubscriberId: android.permission.READ_PRIVILEGED_PHONE_STATE"
+        errorLine1="                subscriberId = telephony.getSubscriberId();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkIdentity.java"
+            line="211"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getLine1Number: android.permission.READ_PHONE_STATE or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS"
+        errorLine1="        String myNumber = excludeMyNumber ? mTelephonyManager.getLine1Number() : null;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduPersister.java"
+            line="1531"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="        NetworkInfo ni = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_MMS);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="67"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                NetworkInfo niWF = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/Transaction.java"
+            line="246"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="            NetworkInfo niWF = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="256"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="            NetworkInfo ni = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_MMS);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="259"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getAllNetworks: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="            Network[] networks = mConnMgr.getAllNetworks();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="675"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkCapabilities: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                NetworkCapabilities capabilities = mConnMgr.getNetworkCapabilities(network);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="677"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
+        errorLine1="                mmsNetworkInfo = mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_MMS);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1138"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by TelephonyManager.getLine1Number: android.permission.READ_PHONE_STATE or android.permission.READ_SMS or android.permission.READ_PHONE_NUMBERS"
+        errorLine1="        return mTelephonyMgr.getLine1Number();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="59"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by SubscriptionManager.getActiveSubscriptionInfo: android.permission.READ_PHONE_STATE"
+        errorLine1="                SubscriptionInfo subscriptionInfo = subscriptionManager.getActiveSubscriptionInfo(subscriptionId);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="69"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="AnnotateVersionCheck"
+        message="This method should be annotated with `@ChecksSdkIntAtLeast(api=Build.VERSION_CODES.KITKAT)`"
+        errorLine1="    public static boolean hasKitKat() {"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="420"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(&quot;has_seen_select_apns_warning&quot;, true).commit();"
+        errorLine2="                                                                                                                               ~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="51"
+            column="128"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="                .commit();"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="180"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="                .commit();"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="343"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        return country.toUpperCase();"
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/PhoneUtils.java"
+            line="100"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        tagName = tagName.toLowerCase();"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/SmilDocumentImpl.java"
+            line="156"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        super(owner, tagName.toLowerCase());"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/SmilElementImpl.java"
+            line="34"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        super(owner, tagName.toUpperCase());"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/SmilParElementImpl.java"
+            line="99"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="            this.setAttribute(FIT_ATTRIBUTE_NAME, fit.toLowerCase());"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/SmilRegionElementImpl.java"
+            line="130"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="OldTargetApi"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details."
+        errorLine1="        targetSdkVersion 33"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="27"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = cl.loadClass(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="48"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = cl.loadClass(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="88"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = cl.loadClass(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="133"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = cl.loadClass(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="178"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = cl.loadClass(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="228"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            Class SystemProperties = Class.forName(&quot;android.os.SystemProperties&quot;);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="271"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                        final String type = apnCursor.getString(apnCursor.getColumnIndex(&quot;type&quot;));"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/APNHelper.java"
+            line="29"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            final String mmsc = apnCursor.getString(apnCursor.getColumnIndex(&quot;mmsc&quot;));"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/APNHelper.java"
+            line="31"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            final String mmsProxy = apnCursor.getString(apnCursor.getColumnIndex(&quot;mmsproxy&quot;));"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/APNHelper.java"
+            line="32"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            final String port = apnCursor.getString(apnCursor.getColumnIndex(&quot;mmsport&quot;));"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/APNHelper.java"
+            line="33"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            String id = query.getString(query.getColumnIndex(&quot;_id&quot;));"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/DeliveredReceiver.java"
+            line="58"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            String id = query2.getString(query2.getColumnIndex(&quot;_id&quot;));"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/DeliveredReceiver.java"
+            line="90"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                    return c.getLong(c.getColumnIndex(Telephony.Mms._ID));"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/DownloadRequest.java"
+            line="355"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="            String id = query.getString(query.getColumnIndex(Mms._ID));"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="248"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                            String id = query.getString(query.getColumnIndex(&quot;_id&quot;));"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="70"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="            String id = query.getString(query.getColumnIndex(&quot;_id&quot;));"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="114"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `getColumnIndex` can be -1"
+        errorLine1="                info.token = query.getLong(query.getColumnIndex(&quot;thread_id&quot;));"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="631"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="WifiManagerPotentialLeak"
+        message="The WIFI_SERVICE must be looked up on the Application context or memory will leak on devices &lt; Android N. Try changing `context` to `context.getApplicationContext()`"
+        errorLine1="        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="148"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="WifiManagerPotentialLeak"
+        message="The WIFI_SERVICE must be looked up on the Application context or memory will leak on devices &lt; Android N. Try changing `context` to `context.getApplicationContext()`"
+        errorLine1="                final WifiManager wifi = (WifiManager) context.getSystemService("
+        errorLine2="                                                       ^">
+        <location
+            file="src/main/java/android/net/NetworkIdentity.java"
+            line="218"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for LOADED"
+        errorLine1="                context.registerReceiver(mReceiver, intentFilterLoaded);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="83"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mBroadcastReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for com.android.mms.RATE_LIMIT_CONFIRMED"
+        errorLine1="        mContext.registerReceiver(mBroadcastReceiver,"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/android/mms/util/RateController.java"
+            line="129"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`receiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for com.android.mms.PROGRESS_STATUS"
+        errorLine1="                context.registerReceiver(receiver, filter);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="497"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.1.0 is available: 1.19.0"
+        errorLine1="    implementation &quot;androidx.core:core-ktx:$androidx_core_version&quot;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="39"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of org.jetbrains.kotlin:kotlin-stdlib than 1.7.21 is available: 2.2.21"
+        errorLine1="    implementation &quot;org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version&quot;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="43"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                    info.intent = in.readParcelable(null);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/net/LegacyVpnInfo.java"
+            line="63"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                        netProp.addLinkAddress((LinkAddress) in.readParcelable(null));"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/LinkProperties.java"
+            line="418"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                        netProp.addRoute((RouteInfo) in.readParcelable(null));"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/LinkProperties.java"
+            line="429"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                        netProp.setHttpProxy((ProxyProperties) in.readParcelable(null));"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/LinkProperties.java"
+            line="432"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="        template = in.readParcelable(null);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkPolicy.java"
+            line="71"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="        networkInfo = in.readParcelable(null);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkState.java"
+            line="53"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="        linkProperties = in.readParcelable(null);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkState.java"
+            line="54"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="        linkCapabilities = in.readParcelable(null);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkState.java"
+            line="55"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                    config.configureIntent = in.readParcelable(null);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/net/VpnConfig.java"
+            line="104"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `delivery_receiver` requires `0` but format call supplies `1`"
+        errorLine1="        Timber.v(&quot;delivery_receiver&quot;, &quot;marking message as delivered&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/DeliveredReceiver.java"
+            line="33"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `Error GSM 7 bit packed: ` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.e(&quot;Error GSM 7 bit packed: &quot;, ex);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/GsmAlphabet.java"
+            line="534"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `Message` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.v(&quot;Message&quot;, &quot;image is null, returning byte array of size 0&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Message.java"
+            line="543"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `MmsRequestManager` requires `0` but format call supplies `2`"
+        errorLine1="            Timber.e(TAG, &quot;error&quot;, t);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequestManager.java"
+            line="112"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `error` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.e(&quot;error&quot;, t);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetrieveTransaction.java"
+            line="205"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `error` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.e(&quot;error&quot;, t);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/SendTransaction.java"
+            line="168"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sent_receiver` requires `0` but format call supplies `1`"
+        errorLine1="        Timber.v(&quot;sent_receiver&quot;, &quot;marking message as sent&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sent_receiver` requires `0` but format call supplies `1`"
+        errorLine1="                            Timber.v(&quot;sent_receiver&quot;, &quot;using supplied uri&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="40"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sent_receiver` requires `0` but format call supplies `1`"
+        errorLine1="                        Timber.v(&quot;sent_receiver&quot;, &quot;using supplied uri&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="58"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sent_receiver` requires `0` but format call supplies `1`"
+        errorLine1="                        Timber.v(&quot;sent_receiver&quot;, &quot;using first message&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="65"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sent_receiver` requires `0` but format call supplies `1`"
+        errorLine1="        Timber.v(&quot;sent_receiver&quot;, &quot;using first message&quot;);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SentReceiver.java"
+            line="109"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `Settings` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.e(&quot;Settings&quot;, &quot;System sending only available on Lollipop+ devices&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Settings.java"
+            line="260"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="        Timber.v(&quot;send_transaction&quot;, &quot;message text: &quot; + text);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="215"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.v(&quot;send_transaction&quot;, &quot;saving message&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="219"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;saving message with thread id: &quot; + threadId);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="240"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;inserted to uri: &quot; + messageUri);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="245"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;message id: &quot; + messageId);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="255"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;found sms manager&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="299"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;splitting message&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="302"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;length: &quot; + length);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="310"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                        Timber.v(&quot;send_transaction&quot;, &quot;sending split message&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="330"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;sending without splitting&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="334"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                            Timber.v(&quot;send_transaction&quot;, &quot;sent message&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="345"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                            Timber.v(&quot;send_transaction&quot;, &quot;error sending message&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="349"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;message sent after delay&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="382"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `send_transaction` requires `0` but format call supplies `1`"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;message not sent after delay, no longer exists&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="389"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sending_mms_library` requires `0` but format call supplies `1`"
+        errorLine1="                        Timber.v(&quot;sending_mms_library&quot;, &quot;progress: &quot; + progress);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="471"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sending_mms_library` requires `0` but format call supplies `1`"
+        errorLine1="                            Timber.v(&quot;sending_mms_library&quot;, &quot;sending aborted for some reason...&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="491"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sending_mms_library` requires `0` but format call supplies `1`"
+        errorLine1="                Timber.v(&quot;sending_mms_library&quot;, &quot;error saving mms message&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="620"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `sending_mms_library` requires `0` but format call supplies `1`"
+        errorLine1="            Timber.v(&quot;sending_mms_library&quot;, &quot;still an error saving... :(&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="903"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TimberArgCount"
+        message="Wrong argument count, format string `Unexpected Throwable.` requires `0` but format call supplies `1`"
+        errorLine1="                                Timber.e(&quot;Unexpected Throwable.&quot;, t);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="936"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Trying to purge &quot; + key);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/util_alt/AbstractCache.java"
+            line="81"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(mCacheMap.size() + &quot; items cached.&quot;);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/util_alt/AbstractCache.java"
+            line="87"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;ApnSettings: apnName &quot; + apnName);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/ApnSettings.java"
+            line="102"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                    Timber.e(&quot;Invalid port &quot; + portString);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/ApnSettings.java"
+            line="150"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Next int: &quot; + sDefaultRetryScheme[mRetriedTimes]);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/DefaultRetryScheme.java"
+            line="53"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;mAutoDownload ------> &quot; + mAutoDownload);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/DownloadManager.java"
+            line="70"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;auto download without roaming -> &quot; + autoDownload);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/DownloadManager.java"
+            line="104"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;auto download during roaming -> &quot; + alwaysAuto);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/DownloadManager.java"
+            line="111"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\ttoken\t\t= &quot; + token);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="100"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\turl\t\t= &quot; + url);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="101"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\tmethod\t\t= &quot;"
+        errorLine2="                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="102"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\tisProxySet\t= &quot; + isProxySet);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="105"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\tproxyHost\t= &quot; + proxyHost);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="106"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;\tproxyPort\t= &quot; + proxyPort);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="107"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                Timber.e(&quot;Error closing input stream: &quot; + e.getMessage());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="217"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                    Timber.e(&quot;httpConnection: error reading input stream&quot;"
+        errorLine2="                                             ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="235"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                Timber.e(&quot;Error closing input stream: &quot; + e.getMessage());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="258"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;MmsConfig.getMaxMessageSize(): &quot; + mMaxMessageSize);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/MmsConfig.java"
+            line="127"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;MmsConfig: all settings -- &quot; + mKeyValues);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="205"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;MmsConfig: all settings -- &quot; + mKeyValues);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="225"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;MmsConfig.getNai: nai=&quot; + nai);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="604"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.i(&quot;mReceiver action: &quot; + action);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="64"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.i(&quot;MmsConfigManager.load -- mcc/mnc for sub: &quot; + sub);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="172"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.i(&quot;HTTP: User-Agent=&quot; + userAgent);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsHttpClient.java"
+            line="144"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.i(&quot;HTTP: UaProfUrl=&quot; + uaProfUrl);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsHttpClient.java"
+            line="150"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.d(&quot;HTTP: response size=&quot;"
+        errorLine2="                     ^">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsHttpClient.java"
+            line="205"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;HTTP: headers\n&quot; + sb.toString());"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsHttpClient.java"
+            line="332"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.w(&quot;HTTP: invalid macro &quot; + macro);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsHttpClient.java"
+            line="427"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Received the MMS_SEND_OUTBOX_MSG intent: &quot; + intent);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MmsPushOutboxMessages.java"
+            line="38"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.v(&quot;response length: &quot; + response.length);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedReceiver.java"
+            line="116"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;sending ACK to MMSC: &quot; + mTransactionSettings.getMmscUrl());"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedReceiver.java"
+            line="305"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;response length: &quot; + response.length);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedService.java"
+            line="80"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;mobile data enabled: &quot; + mobileDataEnabled);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="156"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.i(&quot;MmsRequest: using &quot; + apn.toString());"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="202"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Intent received: &quot; + intent);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MmsSystemEventReceiver.java"
+            line="57"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Purge cache in message box: &quot; + msgBoxId);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/util_alt/PduCache.java"
+            line="211"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;Purge cache in thread: &quot; + threadId);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/util_alt/PduCache.java"
+            line="237"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;parseHeaders: MBOX_TOTALS: &quot; + headerField);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="767"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;parseHeaders: ELEMENT_DESCRIPTOR: &quot; + headerField);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="790"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;parseHeaders: Unknown header: &quot; + headerField);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="835"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                Timber.e(&quot;Unknown address type: &quot; + addrType);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduPersister.java"
+            line="511"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                            Timber.v(&quot;Skip downloading duplicate message: &quot;"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="252"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;Received PUSH Intent: &quot; + intent);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="287"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;Intent received: &quot; + intent);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/RateController.java"
+            line="57"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.v(&quot;Waiting for answer...&quot; + t / 1000);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/RateController.java"
+            line="151"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;X-Mms-Content-Location: &quot; + mContentLocation);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetrieveTransaction.java"
+            line="86"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;[RetryScheduler] update &quot; + observable);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="76"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.v(&quot;Cannot found correct pending status for: &quot; + msgId);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="235"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.e(&quot;Response status is: &quot; + respStatus);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="283"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;Retrieve status is: &quot; + retrieveStatus);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="303"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;response status: &quot; + sendConf.getResponseStatus());"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SendRequest.java"
+            line="142"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.e(&quot;Server returned an error code: &quot; + respStatus);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/SendTransaction.java"
+            line="152"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;SmilContentHandler.startElement. Creating element &quot; + localName);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/parser/SmilContentHandler.java"
+            line="57"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;SmilContentHandler.endElement. localName &quot; + localName);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/parser/SmilContentHandler.java"
+            line="82"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;SmilContentHandler.characters. ch = &quot; + new String(ch, start, length));"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/parser/SmilContentHandler.java"
+            line="90"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;[Entry] &quot;+ entry);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/dom/smil/SmilPlayer.java"
+            line="756"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;send_transaction&quot;, &quot;message text: &quot; + text);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="215"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;saving message with thread id: &quot; + threadId);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="240"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;inserted to uri: &quot; + messageUri);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="245"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;send_transaction&quot;, &quot;message id: &quot; + messageId);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="255"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.v(&quot;send_transaction&quot;, &quot;length: &quot; + length);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="310"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;sending_mms_library&quot;, &quot;progress: &quot; + progress);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="471"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;rowsUpdated=&quot; + rowsUpdated);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="670"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;    networkAvailable=&quot; + !noNetwork);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="287"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                    Timber.v(&quot;onNewIntent: launchTransaction uri=&quot; + uri);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="434"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.w(&quot;Unrecognized MESSAGE_TYPE: &quot; + msgType);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="485"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;launchTransaction: sending message &quot; + msg);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="501"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="            Timber.v(&quot;update transaction &quot; + serviceId);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="560"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;Transaction complete: &quot; + serviceId);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="595"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;Transaction failed: &quot; + serviceId);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="621"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;update: broadcast transaction result &quot; + result);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="633"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                Timber.w(&quot;Invalid transaction type: &quot; + serviceId);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="911"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                            Timber.v(&quot;Started processing of incoming message: &quot; + msg);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="922"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.w(&quot;Exception occurred while handling message: &quot; + msg, ex);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="925"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                                Timber.v(&quot;Transaction was null. Stopping self: &quot; + serviceId);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="946"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                    Timber.w(&quot;what=&quot; + msg.what);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="957"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;processPendingTxn: transaction=&quot; + transaction);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="987"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;processPendingTxn: process &quot; + serviceId);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1010"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                            Timber.v(&quot;Started deferred processing of transaction  &quot;"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1015"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                            Timber.v(&quot;Transaction already pending: &quot; +"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1049"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                            Timber.v(&quot;Duplicated transaction: &quot; + transaction.getServiceId());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1058"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;Adding transaction to &apos;mPending&apos; list: &quot; + transaction);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1089"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                        Timber.v(&quot;Adding transaction to &apos;mProcessing&apos; list: &quot; + transaction);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1095"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;processTransaction: starting transaction &quot; + transaction);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1106"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.w(&quot;ConnectivityBroadcastReceiver.onReceive() action: &quot; + action);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1128"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="                Timber.v(&quot;Handle ConnectivityBroadcastReceiver.onReceive(): &quot; + mmsNetworkInfo);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="1152"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BinaryOperationInTimber"
+        message="Replace String concatenation with Timber&apos;s string formatting"
+        errorLine1="        Timber.v(&quot;TransactionSettings: apnName: &quot; + apnName);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionSettings.java"
+            line="58"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.d(LogTag.TRANSACTION,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="159"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.e(LOG_TAG, &quot;implausible UnsupportedEncodingException&quot;,"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/com/android/internal/telephony/IccUtils.java"
+            line="185"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.e(LOG_TAG, &quot;implausible UnsupportedEncodingException&quot;, ex);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/IccUtils.java"
+            line="349"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="            Log.e(LOG_TAG, &quot;parse end and size error&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/IccUtils.java"
+            line="400"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="            Log.e(LOG_TAG, &quot;not event number of color&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/IccUtils.java"
+            line="452"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="            Log.e(LOG_TAG, &quot;not odd number of color&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/IccUtils.java"
+            line="490"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="        Log.e(LOG_TAG, &quot;[MessageStatusReceiver] &quot; + message);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MessageStatusService.java"
+            line="111"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="        Log.d(LOG_TAG, &quot;[MessageStatusReceiver] &quot; + message);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MessageStatusService.java"
+            line="115"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_SEND_REQ&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="155"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_SEND_CONF&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="161"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_NOTIFICATION_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="167"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_NOTIFYRESP_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="174"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_RETRIEVE_CONF&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="181"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_DELIVERY_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="214"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_ACKNOWLEDGE_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="221"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_READ_ORIG_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="228"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;parse: MESSAGE_TYPE_READ_REC_IND&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="235"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;TextHeader: &quot; + new String(bVal));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="267"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.v(LOG_TAG, &quot;parseHeaders: messageType: &quot; + messageType);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="277"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.v(LOG_TAG, &quot;parseHeaders: byte: &quot; + headerField + &quot; value: &quot; +"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="341"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;parseHeaders: longint: &quot; + headerField + &quot; value: &quot; +"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="366"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;parseHeaders: int: &quot; + headerField + &quot; value: &quot; +"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="385"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                                Log.v(LOG_TAG, &quot;parseHeaders: string: &quot; + headerField + &quot; value: &quot; +"
+        errorLine2="                                ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="421"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                                Log.v(LOG_TAG, &quot;parseHeaders: encoded string: &quot; + headerField"
+        errorLine2="                                ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="450"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                                Log.v(LOG_TAG, &quot;parseHeaders: (to/cc/bcc) address: &quot; + headerField"
+        errorLine2="                                ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="476"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;parseHeaders: time value: &quot; + headerField"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="531"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;parseHeaders: from address: &quot; + headerField"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="585"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.v(LOG_TAG, &quot;parseHeaders: MESSAGE_CLASS: &quot; + headerField"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="603"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;parseHeaders: MMS_VERSION: &quot; + headerField"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="656"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="            Log.v(LOG_TAG, text);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="967"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.v(LOG_TAG, &quot;Not supported Content-Type parameter&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1516"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Corrupt Content-Type&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1519"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                            Log.v(LOG_TAG, &quot;Not supported Part headers: &quot; + header);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1728"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                        Log.e(LOG_TAG, &quot;Corrupt Part headers&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1731"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.v(LOG_TAG, &quot;Not supported Part headers: &quot; + header);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1752"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Corrupt Part headers&quot;);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1756"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="            Log.e(LOG_TAG, &quot;Corrupt Part headers&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduParser.java"
+            line="1764"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                Log.v(&quot;mms_receiver&quot;, context.getPackageName() + &quot; received and aborted&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="296"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                Log.v(&quot;mms_receiver&quot;, context.getPackageName() + &quot; received and not aborted&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="306"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LogNotTimber"
+        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
+        errorLine1="                Log.e(&quot;creating_smil_document&quot;, &quot;unknown mimetype&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/smil/SmilHelper.java"
+            line="88"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="            Timber.e(&quot;Error GSM 7 bit packed: &quot;, ex);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/internal/telephony/GsmAlphabet.java"
+            line="534"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="            Timber.e(TAG, &quot;error&quot;, t);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequestManager.java"
+            line="112"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="                Timber.e(&quot;error&quot;, t);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetrieveTransaction.java"
+            line="205"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="            Timber.e(&quot;error&quot;, t);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/SendTransaction.java"
+            line="168"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="                        Timber.w(&quot;Exception occurred while handling message: &quot; + msg, ex);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="925"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ThrowableNotAtBeginning"
+        message="Throwable should be first argument"
+        errorLine1="                                Timber.e(&quot;Unexpected Throwable.&quot;, t);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="936"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getLine1Number` to get device identifiers is not recommended"
+        errorLine1="                String line1Number = ((TelephonyManager)context"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/HttpUtils.java"
+            line="174"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getLine1Number` to get device identifiers is not recommended"
+        errorLine1="                return telephonyManager.getLine1Number();"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="562"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getLine1Number` to get device identifiers is not recommended"
+        errorLine1="                    return telephonyManager.getLine1Number();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="568"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getSubscriberId` to get device identifiers is not recommended"
+        errorLine1="                subscriberId = telephony.getSubscriberId();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/net/NetworkIdentity.java"
+            line="211"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getLine1Number` to get device identifiers is not recommended"
+        errorLine1="        String myNumber = excludeMyNumber ? mTelephonyManager.getLine1Number() : null;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduPersister.java"
+            line="1531"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="HardwareIds"
+        message="Using `getLine1Number` to get device identifiers is not recommended"
+        errorLine1="        return mTelephonyMgr.getLine1Number();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="59"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedImmutableFlag"
+        message="Missing `PendingIntent` mutability flag"
+        errorLine1="                    context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="684"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="WakelockTimeout"
+        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
+        errorLine1="        mWakeLock.acquire();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="656"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/ApnUtils.java"
+            line="166"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21"
+        errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/DownloadManager.java"
+            line="46"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="341"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="561"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfig.java"
+            line="591"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="153"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsNetworkManager.java"
+            line="91"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedReceiver.java"
+            line="156"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedService.java"
+            line="101"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="108"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="171"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsRequest.java"
+            line="272"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/MmsSystemEventReceiver.java"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="150"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="208"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary;` Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here"
+        errorLine1="                                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="240"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="            if ((!sharedPrefs.getBoolean(&quot;receive_with_stock&quot;, false) &amp;&amp; Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT &amp;&amp; sharedPrefs.getBoolean(&quot;override&quot;, true))"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="291"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                    || Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="292"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Settings.java"
+            line="256"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP_MR1 || subscriptionId == null) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Settings.java"
+            line="270"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/SmsManagerFactory.java"
+            line="14"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SubscriptionIdChecker.java"
+            line="19"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt;= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Transaction.java"
+            line="455"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="321"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="689"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="891"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="67"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="84"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="86"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="    @TargetApi(Build.VERSION_CODES.M)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="94"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21"
+        errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="113"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="238"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="421"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/Utils.java"
+            line="449"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `DownloadManager` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static DownloadManager sInstance;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/DownloadManager.java"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `LayoutManager` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static LayoutManager sInstance;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/layout/LayoutManager.java"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `MmsConfigManager` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static volatile MmsConfigManager sInstance = new MmsConfigManager();"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/MmsConfigManager.java"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This field leaks a context object"
+        errorLine1="        protected final Context mContext;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/klinker/android/send_message/MmsReceivedReceiver.java"
+            line="177"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This `AsyncTask` class should be static or leaks might occur (com.android.mms.transaction.PushReceiver.ReceivePushTask)"
+        errorLine1="    private class ReceivePushTask extends AsyncTask&lt;Intent,Void,Void> {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/PushReceiver.java"
+            line="89"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `RateController` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static RateController sInstance;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/util/RateController.java"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `RetryScheduler` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static RetryScheduler sInstance;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/transaction/RetryScheduler.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AssertionSideEffect"
+        message="Assertion condition has a side effect: cacheEntry.hit++"
+        errorLine1="                    assert(PDU_CACHE_INSTANCE.get(uri) == null);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/google/android/mms/pdu_alt/PduPersister.java"
+            line="675"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    public Handler mToastHandler = new Handler() {"
+        errorLine2="                                   ^">
+        <location
+            file="src/main/java/com/android/mms/transaction/TransactionService.java"
+            line="158"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UseValueOf"
+        message="Use `Integer.valueOf(def)` instead"
+        errorLine1="            params[1] = new Integer(def);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="146"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UseValueOf"
+        message="Use `Long.valueOf(def)` instead"
+        errorLine1="            params[1] = new Long(def);"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="191"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UseValueOf"
+        message="Use `Boolean.valueOf(def)` instead"
+        errorLine1="            params[1] = new Boolean(def);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mms/service_alt/SystemPropertiesProxy.java"
+            line="241"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+</issues>

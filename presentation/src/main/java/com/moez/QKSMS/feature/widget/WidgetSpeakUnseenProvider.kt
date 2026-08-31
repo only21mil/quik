@@ -56,7 +56,8 @@ class WidgetSpeakUnseenProvider : AppWidgetProvider() {
             context,
             0,
             Intent(context, SpeakThreadsReceiver::class.java)
-                .putExtra("threadId", -1L),
+                .setAction(SpeakThreadsReceiver.ACTION_SPEAK_MESSAGES)
+                .putExtra(SpeakThreadsReceiver.EXTRA_THREAD_ID, -1L),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         remoteViews.setOnClickPendingIntent(R.id.speakUnseenImage, speakUnseenPendingIntent)

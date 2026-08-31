@@ -81,6 +81,7 @@ import dev.octoshrimpy.quik.feature.compose.editing.ChipsAdapter
 import dev.octoshrimpy.quik.feature.contacts.ContactsActivity
 import dev.octoshrimpy.quik.model.Attachment
 import dev.octoshrimpy.quik.model.Recipient
+import dev.octoshrimpy.quik.manager.PermissionManager
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -103,6 +104,7 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     @Inject lateinit var dateFormatter: DateFormatter
     @Inject lateinit var messageAdapter: MessagesAdapter
     @Inject lateinit var externalNavigator : ExternalNavigator
+    @Inject lateinit var permissionManager: PermissionManager
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: ComposeActivityBinding
@@ -142,6 +144,7 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     override val clearCurrentMessageIntent: Subject<Boolean> = PublishSubject.create()
     override val messageLinkAskIntent: Subject<Uri> by lazy { messageAdapter.messageLinkClicks }
     override val reactionClickIntent: Subject<Long> by lazy { messageAdapter.reactionClicks }
+    override val reactionSelectedIntent: Subject<Pair<Long, String>> = PublishSubject.create()
     override val speechRecogniserIntent by lazy { binding.speechToTextIcon.clicks() }
     override val shadeIntent by lazy { binding.shadeBackground.clicks() }
     override val recordAudioStartStopRecording: Subject<Boolean> = PublishSubject.create()
@@ -160,6 +163,9 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     override val recordAudioRecord: Subject<MicInputCloudView.ViewState> = PublishSubject.create()
 
     private var seekBarUpdater: Disposable? = null
+    private var reactionDialog: AlertDialog? = null
+    private var reactionEditingMode = false
+    private val reactionIntentGate = ReactionIntentGate()
 
     private val viewModel by lazy { ViewModelProviders.of(this, viewModelFactory)[ComposeViewModel::class.java] }
 
@@ -417,18 +423,26 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        invalidateOptionsMenu()
+    }
+
     override fun onPause() {
         super.onPause()
         activityVisibleIntent.onNext(false)
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        reactionDialog?.dismiss()
+        reactionDialog = null
+        reactionIntentGate.cancel()
 
         // stop any playing audio
         QkMediaPlayer.reset()
 
         seekBarUpdater?.dispose()
+        super.onDestroy()
     }
 
 
@@ -465,6 +479,8 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
                 && state.query.isEmpty()
         binding.toolbar.menu.findItem(R.id.info)?.isVisible = !state.editingMode && state.selectedMessages == 0
                 && state.query.isEmpty()
+        reactionEditingMode = state.editingMode
+
         binding.toolbar.menu.findItem(R.id.copy)?.isVisible =
             !state.editingMode && state.selectedMessages > 0 && state.selectedMessagesHaveText
         binding.toolbar.menu.findItem(R.id.share)?.isVisible =
@@ -491,6 +507,7 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
         binding.messageList.setVisible(!state.editingMode || state.sendAsGroup || state.selectedChips.size == 1)
         messageAdapter.data = state.messages
         messageAdapter.highlight = state.searchSelectionId
+        updateReactionMenuItem()
 
         binding.scheduledGroup.isVisible = state.scheduled != 0L
         binding.scheduledTime.text = dateFormatter.getScheduledTimestamp(state.scheduled)
@@ -613,7 +630,9 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
     }
 
     override fun requestStoragePermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        }
     }
 
     override fun requestRecordAudioPermission() {
@@ -763,12 +782,80 @@ class ComposeActivity : QkThemedActivity(), ComposeView {
             .show()
     }
 
+    private fun updateReactionMenuItem() {
+        val targetId = if (reactionEditingMode) null else currentReactionTargetId()
+        binding.toolbar.menu.findItem(R.id.react)?.isVisible = targetId != null
+
+        if (reactionDialog?.isShowing == true && reactionIntentGate.activeMessageId != targetId) {
+            reactionDialog?.dismiss()
+        }
+    }
+
+    private fun currentReactionTargetId(): Long? = messageAdapter.reactionTargetId(
+        isDefaultSms = permissionManager.isDefaultSms(),
+        hasSendSms = permissionManager.hasSendSms(),
+    )
+
+    private fun showReactionPicker() {
+        if (!permissionManager.isDefaultSms()) {
+            requestDefaultSms()
+            return
+        }
+        if (!permissionManager.hasSendSms()) {
+            requestSmsPermission()
+            return
+        }
+
+        val messageId = currentReactionTargetId() ?: return
+        val options = ReactionUiPolicy.options
+        val labels = options.map { option -> getString(option.label) }.toTypedArray()
+
+        reactionDialog?.dismiss()
+        reactionIntentGate.open(messageId)
+
+        reactionDialog = AlertDialog.Builder(this)
+            .setTitle(R.string.reaction_picker_title)
+            .setItems(labels) { _, index ->
+                options.getOrNull(index)?.let { option ->
+                    handleReactionChoice(messageId, option.emoji)
+                }
+            }
+            .setNegativeButton(R.string.button_cancel, null)
+            .create()
+            .also { dialog ->
+                dialog.setOnDismissListener {
+                    reactionIntentGate.cancel()
+                    if (reactionDialog === dialog) reactionDialog = null
+                }
+                dialog.show()
+            }
+    }
+
+    private fun handleReactionChoice(messageId: Long, emoji: String) {
+        when {
+            !permissionManager.isDefaultSms() -> requestDefaultSms()
+            !permissionManager.hasSendSms() -> requestSmsPermission()
+            currentReactionTargetId() != messageId -> Unit
+            else -> reactionIntentGate.consume(messageId, emoji)?.let(reactionSelectedIntent::onNext)
+        }
+        clearSelection()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.compose, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        updateReactionMenuItem()
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.react) {
+            showReactionPicker()
+            return true
+        }
         optionsItemIntent.onNext(item.itemId)
         return true
     }

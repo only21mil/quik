@@ -60,7 +60,7 @@ import javax.net.ssl.HttpsURLConnection;
 /**
  * MMS HTTP client for sending and downloading MMS messages
  */
-public class MmsHttpClient {
+class MmsHttpClient {
     private static final String TAG = "MmsHttpClient";
 
     public static final String METHOD_POST = "POST";
@@ -93,7 +93,7 @@ public class MmsHttpClient {
      * @param hostResolver The host name resolver for creating an OKHttp client
      * @param connectionPool The connection pool for creating an OKHttp client
      */
-    public MmsHttpClient(Context context, SocketFactory socketFactory, MmsNetworkManager hostResolver,
+    MmsHttpClient(Context context, SocketFactory socketFactory, MmsNetworkManager hostResolver,
             ConnectionPool connectionPool) {
         mContext = context;
         mSocketFactory = socketFactory;

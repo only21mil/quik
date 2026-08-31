@@ -26,19 +26,26 @@ import android.provider.Telephony
 import androidx.annotation.RequiresApi
 import dagger.android.AndroidInjection
 import dev.octoshrimpy.quik.interactor.SyncMessages
-import dev.octoshrimpy.quik.util.Preferences
+import dev.octoshrimpy.quik.manager.PermissionManager
 import javax.inject.Inject
 
 class DefaultSmsChangedReceiver : BroadcastReceiver() {
 
-    @Inject lateinit var prefs: Preferences
+    @Inject lateinit var permissionManager: PermissionManager
     @Inject lateinit var syncMessages: SyncMessages
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != Telephony.Sms.Intents.ACTION_DEFAULT_SMS_PACKAGE_CHANGED) return
+
         AndroidInjection.inject(this, context)
 
-        if (intent.getBooleanExtra(Telephony.Sms.Intents.EXTRA_IS_DEFAULT_SMS_APP, false)) {
+        if (ReceiverRequestValidator.isDefaultSmsChangeRequest(
+                intent.action,
+                Telephony.Sms.Intents.ACTION_DEFAULT_SMS_PACKAGE_CHANGED,
+                intent.getBooleanExtra(Telephony.Sms.Intents.EXTRA_IS_DEFAULT_SMS_APP, false),
+                permissionManager.isDefaultSms()
+            )) {
             val pendingResult = goAsync()
             syncMessages.execute(Unit) { pendingResult.finish() }
         }

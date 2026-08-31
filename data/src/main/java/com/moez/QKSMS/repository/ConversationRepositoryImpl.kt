@@ -58,6 +58,8 @@ class ConversationRepositoryImpl @Inject constructor(
         unreadAtTop: Boolean,
         archived: Boolean
     ): RealmQuery<Conversation> {
+        realm.repairHiddenConversationPreviews()
+
         val sortOrder = mutableListOf("pinned", "draft", "lastMessage.date")
         val sortDirections = mutableListOf(Sort.DESCENDING, Sort.DESCENDING, Sort.DESCENDING)
 
@@ -73,7 +75,10 @@ class ConversationRepositoryImpl @Inject constructor(
             .equalTo("blocked", false)
             .isNotEmpty("recipients")
             .beginGroup()
+            .beginGroup()
             .isNotNull("lastMessage")
+            .equalTo("lastMessage.isEmojiReaction", false)
+            .endGroup()
             .or()
             .isNotEmpty("draft")
             .endGroup()
@@ -96,9 +101,11 @@ class ConversationRepositoryImpl @Inject constructor(
 
     override fun getTopConversations() =
         Realm.getDefaultInstance().use { realm ->
+            realm.repairHiddenConversationPreviews()
             realm.where(Conversation::class.java)
                 .notEqualTo("id", 0L)
                 .isNotNull("lastMessage")
+                .equalTo("lastMessage.isEmojiReaction", false)
                 .beginGroup()
                 .equalTo("pinned", true)
                 .or()
@@ -118,6 +125,7 @@ class ConversationRepositoryImpl @Inject constructor(
                     .thenByDescending { conversation ->
                         realm.where(Message::class.java)
                             .equalTo("threadId", conversation.id)
+                            .equalTo("isEmojiReaction", false)
                             .greaterThan(
                                 "date",
                                 System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7)
@@ -141,12 +149,14 @@ class ConversationRepositoryImpl @Inject constructor(
 
     override fun searchConversations(query: CharSequence): List<SearchResult> {
         val realm = Realm.getDefaultInstance()
+        realm.repairHiddenConversationPreviews()
 
         val searchQuery = query.toString()
         val conversations = realm.copyFromRealm(realm
             .where(Conversation::class.java)
             .notEqualTo("id", 0L)
             .isNotNull("lastMessage")
+            .equalTo("lastMessage.isEmojiReaction", false)
             .equalTo("blocked", false)
             .isNotEmpty("recipients")
             .sort("pinned", Sort.DESCENDING, "lastMessage.date", Sort.DESCENDING)
@@ -154,6 +164,7 @@ class ConversationRepositoryImpl @Inject constructor(
 
         val messagesByConversation = realm.copyFromRealm(realm
             .where(Message::class.java)
+            .equalTo("isEmojiReaction", false)
             .beginGroup()
             .contains("body", searchQuery, Case.INSENSITIVE)
             .or()
@@ -177,9 +188,16 @@ class ConversationRepositoryImpl @Inject constructor(
     }
 
     override fun getBlockedConversations(): RealmResults<Conversation> =
-        Realm.getDefaultInstance()
+        Realm.getDefaultInstance().also { realm ->
+            realm.repairHiddenConversationPreviews()
+        }
             .where(Conversation::class.java)
             .equalTo("blocked", true)
+            .beginGroup()
+            .isNull("lastMessage")
+            .or()
+            .equalTo("lastMessage.isEmojiReaction", false)
+            .endGroup()
             .sort(
                 arrayOf("lastMessage.date"),
                 arrayOf(Sort.DESCENDING)
@@ -187,9 +205,16 @@ class ConversationRepositoryImpl @Inject constructor(
             .findAll()
 
     override fun getBlockedConversationsAsync(): RealmResults<Conversation> =
-        Realm.getDefaultInstance()
+        Realm.getDefaultInstance().also { realm ->
+            realm.repairHiddenConversationPreviews()
+        }
             .where(Conversation::class.java)
             .equalTo("blocked", true)
+            .beginGroup()
+            .isNull("lastMessage")
+            .or()
+            .equalTo("lastMessage.isEmojiReaction", false)
+            .endGroup()
             .sort(
                 arrayOf("lastMessage.date"),
                 arrayOf(Sort.DESCENDING)
@@ -197,7 +222,9 @@ class ConversationRepositoryImpl @Inject constructor(
             .findAllAsync()
 
     override fun getConversationAsync(threadId: Long): Conversation =
-        Realm.getDefaultInstance()
+        Realm.getDefaultInstance().also { realm ->
+            realm.repairHiddenConversationPreviews(listOf(threadId))
+        }
             .where(Conversation::class.java)
             .equalTo("id", threadId)
             .findFirstAsync()
@@ -206,6 +233,7 @@ class ConversationRepositoryImpl @Inject constructor(
         tryOrNull(true) {
             Realm.getDefaultInstance()
                 .apply { refresh() }
+                .also { realm -> realm.repairHiddenConversationPreviews(listOf(threadId)) }
                 .where(Conversation::class.java)
                 .equalTo("id", threadId)
                 .findFirst()
@@ -224,47 +252,54 @@ class ConversationRepositoryImpl @Inject constructor(
         }
 
     override fun getUnseenIds(archived: Boolean) =
-        ArrayList<Long>().apply {
-            Realm.getDefaultInstance()
+        Realm.getDefaultInstance().use { realm ->
+            realm.repairHiddenConversationPreviews()
+            realm
                 .where(Conversation::class.java)
                 .notEqualTo("id", 0L)
                 .equalTo("archived", archived)
                 .equalTo("blocked", false)
+                .equalTo("lastMessage.isEmojiReaction", false)
                 .equalTo("lastMessage.seen", false)
                 .sort(
                     arrayOf("lastMessage.date"),
                     arrayOf(Sort.DESCENDING)
                 )
-                .findAllAsync()
-                .forEach { conversation -> add(conversation.id) }
+                .findAll()
+                .mapTo(ArrayList()) { conversation -> conversation.id }
         }
 
 
     override fun getUnreadIds(archived: Boolean) =
-        ArrayList<Long>().apply {
-            Realm.getDefaultInstance()
+        Realm.getDefaultInstance().use { realm ->
+            realm.repairHiddenConversationPreviews()
+            realm
                 .where(Conversation::class.java)
                 .notEqualTo("id", 0L)
                 .equalTo("archived", archived)
                 .equalTo("blocked", false)
+                .equalTo("lastMessage.isEmojiReaction", false)
                 .equalTo("lastMessage.read", false)
                 .sort(
                     arrayOf("lastMessage.date"),
                     arrayOf(Sort.DESCENDING)
                 )
-                .findAllAsync()
-                .forEach { conversation -> add(conversation.id) }
+                .findAll()
+                .mapTo(ArrayList()) { conversation -> conversation.id }
         }
 
     override fun getConversationAndLastSenderContactName(threadId: Long): Pair<Conversation?, String?>? =
         Realm.getDefaultInstance()
             .apply { refresh() }
+            .also { realm -> realm.repairHiddenConversationPreviews(listOf(threadId)) }
             .where(Conversation::class.java)
             .equalTo("id", threadId)
             .findFirst()
             ?.let { conversation ->
+                val lastMessage = conversation.lastMessage
+                    ?: return@let Pair(conversation, null)
                 val conversationLastSmsSender: String? = conversation.recipients.find { recipient ->
-                    phoneNumberUtils.compare(recipient.address, conversation.lastMessage!!.address)
+                    phoneNumberUtils.compare(recipient.address, lastMessage.address)
                 }?.contact?.name
 
                 Pair(conversation, conversationLastSmsSender)
@@ -278,10 +313,12 @@ class ConversationRepositoryImpl @Inject constructor(
 
     override fun getUnmanagedConversations(): Observable<List<Conversation>> =
         Realm.getDefaultInstance().let { realm->
+            realm.repairHiddenConversationPreviews()
             realm.where(Conversation::class.java)
                 .sort("lastMessage.date", Sort.DESCENDING)
                 .notEqualTo("id", 0L)
                 .isNotNull("lastMessage")
+                .equalTo("lastMessage.isEmojiReaction", false)
                 .equalTo("archived", false)
                 .equalTo("blocked", false)
                 .isNotEmpty("recipients")
@@ -367,25 +404,7 @@ class ConversationRepositoryImpl @Inject constructor(
         Realm.getDefaultInstance().use { realm ->
             realm.refresh()
 
-            realm.where(Conversation::class.java)
-                .anyOf("id", threadIds.toLongArray())
-                .findAll()
-                ?.map { conversation ->
-                    Pair(
-                        conversation,
-                        realm.where(Message::class.java)
-                            .equalTo("threadId", conversation.id)
-                            .sort("date", Sort.DESCENDING)
-                            .findFirst()
-                    )
-                }
-                ?.let { conversationAndMessages ->
-                    realm.executeTransaction {
-                        conversationAndMessages.forEach { (conversation, message) ->
-                            conversation.lastMessage = message
-                        }
-                    }
-                }
+            realm.refreshConversationPreviews(threadIds)
 
             Unit
         }
@@ -527,6 +546,7 @@ class ConversationRepositoryImpl @Inject constructor(
 
                             lastMessage = realm.where(Message::class.java)
                                 .equalTo("threadId", threadId)
+                                .equalTo("isEmojiReaction", false)
                                 .sort("date", Sort.DESCENDING)
                                 .findFirst()
                         }

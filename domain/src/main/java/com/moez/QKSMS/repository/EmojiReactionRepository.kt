@@ -23,10 +23,37 @@ import io.realm.Realm
 
 data class ParsedEmojiReaction(val emoji: String, val originalMessage: String, val isRemoval: Boolean = false)
 
-interface EmojiReactionRepository {
-    fun parseEmojiReaction(body: String): ParsedEmojiReaction?
+data class ReactionCarrierSource(
+    val transport: Transport,
+    val mediaPartCount: Int,
+) {
+    enum class Transport {
+        SMS,
+        MMS,
+    }
 
-    fun findTargetMessage(threadId: Long, originalMessageText: String, realm: Realm): Message?
+    companion object {
+        fun from(message: Message): ReactionCarrierSource = ReactionCarrierSource(
+            transport = if (message.isMms()) Transport.MMS else Transport.SMS,
+            mediaPartCount = if (message.isMms()) {
+                message.parts.count { part ->
+                    !part.type.equals("text/plain", ignoreCase = true) &&
+                        !part.type.equals("application/smil", ignoreCase = true)
+                }
+            } else {
+                0
+            },
+        )
+    }
+}
+
+interface EmojiReactionRepository {
+    fun parseEmojiReaction(body: String, source: ReactionCarrierSource): ParsedEmojiReaction?
+
+    /** Classifies one carrier, consulting any durable outbound attempt before parsing its body. */
+    fun processEmojiReaction(reactionMessage: Message, realm: Realm): Boolean
+
+    fun findTargetMessage(reactionMessage: Message, originalMessageText: String, realm: Realm): Message?
 
     fun saveEmojiReaction(
         reactionMessage: Message,

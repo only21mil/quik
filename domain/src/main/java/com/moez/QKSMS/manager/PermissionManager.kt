@@ -32,8 +32,6 @@ interface PermissionManager {
 
     fun hasPhone(): Boolean
 
-    fun hasCalling(): Boolean
-
     fun hasStorage(): Boolean
 
     fun hasRecordAudio(): Boolean

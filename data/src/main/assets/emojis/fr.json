@@ -1,7 +1,7 @@
 {
     "emoji_reaction_ios_generic_added": "^(?s)A réagi avec (.+?) à “(.+?)”$",
     "emoji_reaction_ios_generic_removed": "^(?s)A retiré (.+?) de “(.+?)”$",
-    "emoji_reaction_ios_heart_added": "^(?s)Aimé “(.+?)”$",
+    "emoji_reaction_ios_heart_added": "^(?s)A adoré “(.+?)”$",
     "emoji_reaction_ios_heart_removed": "^(?s)A supprimé un cœur depuis “(.+?)”$",
     "emoji_reaction_ios_like_added": "^(?s)Aimé “(.+?)”$",
     "emoji_reaction_ios_like_removed": "^(?s)A supprimé un « j'aime » depuis “(.+?)”$",

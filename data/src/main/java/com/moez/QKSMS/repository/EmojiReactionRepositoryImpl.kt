@@ -19,10 +19,11 @@
 package dev.octoshrimpy.quik.repository
 
 import android.content.Context
+import com.moez.QKSMS.repository.ReactionWireCodec
 import com.squareup.moshi.Moshi
-import dev.octoshrimpy.quik.manager.KeyManager
 import dev.octoshrimpy.quik.model.EmojiReaction
 import dev.octoshrimpy.quik.model.Message
+import dev.octoshrimpy.quik.model.ReactionAttempt
 import dev.octoshrimpy.quik.util.EmojiPatternStrings
 import io.realm.Realm
 import io.realm.Sort
@@ -31,78 +32,45 @@ import javax.inject.Inject
 
 class EmojiReactionRepositoryImpl @Inject constructor(
     private val context: Context,
-    private val keyManager: KeyManager,
     private val moshi: Moshi,
 ) : EmojiReactionRepository {
-    // We use an ordered map to make sure we can test tapback regexes before generic ones
-    private val reactionPatterns: LinkedHashMap<Regex, (MatchResult) -> ParsedEmojiReaction?> = linkedMapOf(
-        Regex( // Google Messages
-            "(?s)^\u200a[^\u200b\u200a]*\u200b([^\u200b]*)\u200b[^\u200b\u200a]*\u200a(.*)\u200a[^\u200b\u200a]*\u200a\\Z"
-        ) to { match ->
-            ParsedEmojiReaction(
-            match.groupValues[1], match.groupValues[2]
-            )
-        }
-    )
-    private val removalPatterns: LinkedHashMap<Regex, (MatchResult) -> ParsedEmojiReaction?> = linkedMapOf(
-        Regex( // Google Messages
-            "(?s)^\u200a[^\u200c\u200a]*\u200c([^\u200c]*)\u200c[^\u200c\u200a]*\u200a(.*)\u200a[^\u200c\u200a]*\u200a\\Z"
-        ) to { match ->
-            ParsedEmojiReaction(
-                match.groupValues[1], match.groupValues[2], isRemoval = true
-            )
-        }
-    )
+    private val inboundPatterns = mutableListOf<ReactionWireCodec.InboundPattern>()
 
     init {
         val assetEntries = loadEmojiPatternEntriesFromAssets()
         assetEntries.forEach { (localeTag, strings) ->
             try {
-                addPatternsForLocaleStrings(localeTag, strings, reactionPatterns, removalPatterns)
+                addPatternsForLocaleStrings(localeTag, strings)
             } catch (e: Exception) {
                 Timber.w(e, "Failed to load asset patterns for locale: $localeTag")
             }
         }
-        Timber.i("Loaded emoji reaction patterns for locales: ${assetEntries.map { it.first }}")
+        Timber.i("Loaded ${assetEntries.size} emoji reaction pattern sets")
     }
 
     private fun addPatternsForLocaleStrings(
         localeTag: String,
         strings: EmojiPatternStrings,
-        reactionPatterns: LinkedHashMap<Regex, (MatchResult) -> ParsedEmojiReaction?>,
-        removalPatterns: LinkedHashMap<Regex, (MatchResult) -> ParsedEmojiReaction?>
     ) {
-        // iOS tapbacks (important to add these before generic emoji patterns as the regexes may overlap)
-        listOf(
-            Triple("❤️", strings.iosHeartAdded, strings.iosHeartRemoved),
-            Triple("👍", strings.iosLikeAdded, strings.iosLikeRemoved),
-            Triple("👎", strings.iosDislikeAdded, strings.iosDislikeRemoved),
-            Triple("😂", strings.iosLaughAdded, strings.iosLaughRemoved),
-            Triple("‼️", strings.iosExclamationAdded, strings.iosExclamationRemoved),
-            Triple("❓", strings.iosQuestionMarkAdded, strings.iosQuestionMarkRemoved)
-        ).forEach { (emoji, added, removed) ->
-            added?.let {
-                reactionPatterns[Regex(it)] =
-                    { match -> ParsedEmojiReaction(emoji, match.groupValues[1]) }
-            }
-            removed?.let {
-                removalPatterns[Regex(it)] =
-                    { match -> ParsedEmojiReaction(emoji, match.groupValues[1], isRemoval = true) }
-            }
-        }
-
-        // Generic iOS emoji patterns
-        strings.iosGenericAdded?.let { pattern ->
-            reactionPatterns[Regex(pattern)] = { match ->
-                if (match.groupValues.getOrNull(1) == "with a sticker") null // TODO: localize "with a sticker"
-                else ParsedEmojiReaction(match.groupValues[1], match.groupValues[2])
-            }
-        }
-        strings.iosGenericRemoved?.let { pattern ->
-            removalPatterns[Regex(pattern)] = { match ->
-                ParsedEmojiReaction(match.groupValues[1], match.groupValues[2], isRemoval = true)
-            }
-        }
+        inboundPatterns += ReactionWireCodec.localizedInboundPatterns(
+            localeTag,
+            ReactionWireCodec.LocalizedPatterns(
+                genericAdded = strings.iosGenericAdded,
+                genericRemoved = strings.iosGenericRemoved,
+                heartAdded = strings.iosHeartAdded,
+                heartRemoved = strings.iosHeartRemoved,
+                likeAdded = strings.iosLikeAdded,
+                likeRemoved = strings.iosLikeRemoved,
+                dislikeAdded = strings.iosDislikeAdded,
+                dislikeRemoved = strings.iosDislikeRemoved,
+                laughAdded = strings.iosLaughAdded,
+                laughRemoved = strings.iosLaughRemoved,
+                emphasisAdded = strings.iosExclamationAdded,
+                emphasisRemoved = strings.iosExclamationRemoved,
+                questionAdded = strings.iosQuestionMarkAdded,
+                questionRemoved = strings.iosQuestionMarkRemoved,
+            ),
+        )
 
         Timber.d("Loaded emoji regex patterns for $localeTag from assets")
     }
@@ -132,45 +100,82 @@ class EmojiReactionRepositoryImpl @Inject constructor(
         return requireNotNull(adapter.fromJson(json)) { "Invalid emoji patterns JSON" }
     }
 
-    override fun parseEmojiReaction(body: String): ParsedEmojiReaction? {
-        val removal = parseRemoval(body)
-        if (removal != null) return removal
-
-        for ((pattern, parser) in reactionPatterns) {
-            val match = pattern.find(body) ?: continue
-            val result = parser(match) ?: continue
-
-            Timber.d("Reaction found with ${result.emoji}")
-            return result
+    override fun parseEmojiReaction(
+        body: String,
+        source: ReactionCarrierSource,
+    ): ParsedEmojiReaction? {
+        return when (
+            val result = ReactionWireCodec.decode(
+                ReactionWireCodec.Carrier(
+                    transport = when (source.transport) {
+                        ReactionCarrierSource.Transport.SMS -> ReactionWireCodec.Transport.SMS
+                        ReactionCarrierSource.Transport.MMS -> ReactionWireCodec.Transport.MMS
+                    },
+                    body = body,
+                    mediaPartCount = source.mediaPartCount,
+                ),
+                inboundPatterns,
+            )
+        ) {
+            is ReactionWireCodec.DecodeResult.Decoded -> {
+                Timber.d("Reaction carrier decoded")
+                ParsedEmojiReaction(
+                    emoji = result.reaction.emoji,
+                    originalMessage = result.reaction.targetBody,
+                    isRemoval = result.reaction.operation == ReactionWireCodec.Operation.REMOVE,
+                )
+            }
+            is ReactionWireCodec.DecodeResult.Rejected -> {
+                Timber.w("Rejected reaction carrier: ${result.reason}")
+                null
+            }
+            ReactionWireCodec.DecodeResult.NotReaction -> null
         }
-
-        return null
     }
 
-    private fun parseRemoval(body: String): ParsedEmojiReaction? {
-        for ((pattern, parser) in removalPatterns) {
-            val match = pattern.find(body) ?: continue
-            val result = parser(match) ?: continue
-
-            Timber.d("Removal found with ${result.emoji}")
-            return result
+    override fun processEmojiReaction(reactionMessage: Message, realm: Realm): Boolean {
+        // Re-establish quarantine at the parser boundary too. Full sync deliberately clears the
+        // derived isEmojiReaction flag before reparsing, and ambiguous pre-stage carriers do not
+        // have an exact transport key yet.
+        ReactionAttemptReconciler.reconcileCarrier(realm, reactionMessage)
+        val transportKey = ReactionTransportPolicy.ProviderIdentity.from(reactionMessage)?.encode()
+        val attempt = transportKey?.let { key ->
+            realm.where(ReactionAttempt::class.java)
+                .equalTo("transportKey", key)
+                .findFirst()
         }
+        if (attempt != null) {
+            reactionMessage.isEmojiReaction = true
+            realm.insertOrUpdate(reactionMessage)
+            if (attempt.state != ReactionAttempt.State.SENT.name) return true
 
-        return null
-    }
-
-    private fun parseTruncatedMessages(originalMessageText: String): Regex {
-        val reactionText = originalMessageText.trim()
-
-        val delimiter = "\u2026"
-        val index = reactionText.lastIndexOf(delimiter)
-        val regexPattern = if (index == -1) {
-            Regex.escape(reactionText)
-        } else {
-            val before = reactionText.take(index)
-            Regex.escape(before) + ".*"
+            val resolved = ReactionAttemptReconciler.resolve(realm, attempt) ?: return true
+            val parsed = parseEmojiReaction(
+                reactionMessage.getText(false),
+                ReactionCarrierSource.from(reactionMessage),
+            ) ?: return true
+            if (
+                reactionMessage.getText(false) != attempt.body ||
+                parsed.originalMessage != resolved.target.getText(false)
+            ) {
+                return true
+            }
+            saveEmojiReaction(reactionMessage, parsed, resolved.target, realm)
+            return true
         }
-        return Regex("^$regexPattern$", RegexOption.DOT_MATCHES_ALL)
+        if (reactionMessage.isEmojiReaction) return true
+
+        val parsed = parseEmojiReaction(
+            reactionMessage.getText(false),
+            ReactionCarrierSource.from(reactionMessage),
+        ) ?: return false
+        saveEmojiReaction(
+            reactionMessage = reactionMessage,
+            parsedReaction = parsed,
+            targetMessage = findTargetMessage(reactionMessage, parsed.originalMessage, realm),
+            realm = realm,
+        )
+        return true
     }
 
     /**
@@ -178,29 +183,64 @@ class EmojiReactionRepositoryImpl @Inject constructor(
      * We'll search recent messages first
      */
     override fun findTargetMessage(
-        threadId: Long,
+        reactionMessage: Message,
         originalMessageText: String,
         realm: Realm
     ): Message? {
         val startTime = System.currentTimeMillis()
         val messages = realm.where(Message::class.java)
-            .equalTo("threadId", threadId)
+            .equalTo("threadId", reactionMessage.threadId)
+            .lessThan("date", reactionMessage.date)
             .sort("date", Sort.DESCENDING)
             .findAll()
         val endTime = System.currentTimeMillis()
         Timber.d("Found ${messages.size} messages as potential emoji targets in ${endTime - startTime}ms")
 
-        val originalMessageRegex = parseTruncatedMessages(originalMessageText)
-        val match = messages.find { message ->
-            originalMessageRegex.matches(message.getText(false).trim())
+        val candidates = messages.map { message ->
+            val carrier = if (message.isMms()) {
+                ReactionWireCodec.Carrier(
+                    transport = ReactionWireCodec.Transport.MMS,
+                    body = message.getText(false),
+                    mediaPartCount = message.parts.count { part ->
+                        part.type.lowercase().let { type ->
+                            type != "text/plain" && type != "application/smil"
+                        }
+                    },
+                )
+            } else {
+                ReactionWireCodec.Carrier(
+                    transport = ReactionWireCodec.Transport.SMS,
+                    body = message.body,
+                )
+            }
+            ReactionWireCodec.TargetCandidate(
+                id = message.id,
+                threadId = message.threadId,
+                timestamp = message.date,
+                carrier = carrier,
+            )
         }
-        if (match != null) {
-            Timber.d("Found match for reaction target: message ID ${match.id}")
-            return match
+        val resolution = ReactionWireCodec.resolveTarget(
+            targetBody = originalMessageText,
+            reactionThreadId = reactionMessage.threadId,
+            reactionTimestamp = reactionMessage.date,
+            candidates = candidates,
+        )
+        return when (resolution) {
+            is ReactionWireCodec.TargetResolution.Resolved -> {
+                val match = messages.single { it.id == resolution.candidate.id }
+                Timber.d("Found reaction target")
+                match
+            }
+            is ReactionWireCodec.TargetResolution.Ambiguous -> {
+                Timber.w("Ambiguous reaction target")
+                null
+            }
+            ReactionWireCodec.TargetResolution.NotFound -> {
+                Timber.w("No target message found for reaction carrier")
+                null
+            }
         }
-
-        Timber.w("No target message found for reaction text: '$originalMessageText'")
-        return null
     }
 
     private fun removeEmojiReaction(
@@ -210,19 +250,23 @@ class EmojiReactionRepositoryImpl @Inject constructor(
         realm: Realm,
     ) {
         if (targetMessage == null) {
-            Timber.w("Cannot remove emoji reaction '${reaction.emoji}': no target message found")
+            Timber.w("Cannot remove reaction: no target message found")
             return
         }
 
+        val fromMe = EmojiReaction.fromMeForCarrier(reactionMessage.type, reactionMessage.boxId)
+        val senderAddress = if (fromMe == true) "" else reactionMessage.address
         val existingReaction = targetMessage.emojiReactions.find { candidate ->
-            candidate.senderAddress == reactionMessage.address && candidate.emoji == reaction.emoji
+            candidate.senderAddress == senderAddress && candidate.fromMe == fromMe &&
+                candidate.emoji == reaction.emoji
         }
 
         if (existingReaction != null) {
             existingReaction.deleteFromRealm()
-            Timber.d("Removed emoji reaction: ${reaction.emoji} to message ${targetMessage.id}")
+            Timber.d("Removed reaction")
         } else {
-            Timber.w("No existing emoji reaction found to remove: ${reaction.emoji} to message ${targetMessage.id}")
+            Timber.w("No existing reaction found to remove")
+            return
         }
 
         reactionMessage.isEmojiReaction = true
@@ -240,30 +284,34 @@ class EmojiReactionRepositoryImpl @Inject constructor(
             return
         }
 
+        if (targetMessage == null) {
+            Timber.w("No target message, cannot save reaction")
+            return
+        }
+
+        val fromMe = EmojiReaction.fromMeForCarrier(reactionMessage.type, reactionMessage.boxId)
         val reaction = EmojiReaction().apply {
-            id = keyManager.newId()
+            id = EmojiReaction.idForReactionMessage(reactionMessage.id)
             reactionMessageId = reactionMessage.id
-            senderAddress = reactionMessage.address
+            senderAddress = if (fromMe == true) "" else reactionMessage.address
             emoji = parsedReaction.emoji
             originalMessageText = parsedReaction.originalMessage
             threadId = reactionMessage.threadId
+            this.fromMe = fromMe
         }
-        realm.insertOrUpdate(reaction)
+        reactionMessage.isEmojiReaction = true
+        realm.insertOrUpdate(reactionMessage)
 
-        if (targetMessage != null) {
-            reactionMessage.isEmojiReaction = true
-            realm.insertOrUpdate(reactionMessage)
-
-            // Overwrite any previous reaction from this sender for this target
-            val priorFromSender = targetMessage.emojiReactions.filter { it.senderAddress == reaction.senderAddress }
-            priorFromSender.forEach { it.deleteFromRealm() }
-
-            targetMessage.emojiReactions.add(reaction)
-
-            Timber.i("Saved emoji reaction: ${reaction.emoji} to message ${targetMessage.id}")
-        } else {
-            Timber.w("No target message, cannot save emoji reaction: ${reaction.emoji}")
+        // Overwrite any previous reaction from this sender for this target
+        val priorFromSender = targetMessage.emojiReactions.filter { candidate ->
+            candidate.senderAddress == reaction.senderAddress && candidate.fromMe == reaction.fromMe
         }
+        priorFromSender.forEach { it.deleteFromRealm() }
+
+        val managedReaction = realm.copyToRealmOrUpdate(reaction)
+        targetMessage.emojiReactions.add(managedReaction)
+
+        Timber.i("Saved reaction")
     }
 
     override fun deleteAndReparseAllEmojiReactions(realm: Realm, onProgress: (SyncRepository.SyncProgress) -> Unit) {
@@ -294,20 +342,7 @@ class EmojiReactionRepositoryImpl @Inject constructor(
         var progress = 0
 
         allMessages.forEach { message ->
-            val text = message.getText(false)
-            val parsedReaction = parseEmojiReaction(text)
-            if (parsedReaction != null) {
-                val targetMessage = findTargetMessage(
-                    message.threadId,
-                    parsedReaction.originalMessage,
-                    realm
-                )
-                saveEmojiReaction(
-                    message,
-                    parsedReaction,
-                    targetMessage,
-                    realm,
-                )
+            if (processEmojiReaction(message, realm)) {
                 progress++
                 // Update the progress every 25 messages, and then at completion
                 // that way we don't spam the UI

@@ -163,7 +163,9 @@ class MainViewModel @Inject constructor(
 
         when {
             !permissionManager.isDefaultSms() -> view.requestDefaultSms()
-            !permissionManager.hasReadSms() || !permissionManager.hasContacts() -> view.requestPermissions()
+            !permissionManager.hasReadSms() ||
+                !permissionManager.hasContacts() ||
+                !permissionManager.hasPhone() -> view.requestPermissions()
         }
 
 
@@ -212,6 +214,16 @@ class MainViewModel @Inject constructor(
             .map { permissionManager.hasContacts() }
             .distinctUntilChanged()
             .doOnNext { contactPermission -> newState { copy(contactPermission = contactPermission) } }
+            .autoDisposable(view.scope())
+            .subscribe()
+
+        // Active-SIM reaction routing stays disabled unless Android grants phone-state access.
+        view.activityResumedIntent
+            .filter { resumed -> resumed }
+            .observeOn(Schedulers.io())
+            .map { permissionManager.hasPhone() }
+            .distinctUntilChanged()
+            .doOnNext { phonePermission -> newState { copy(phonePermission = phonePermission) } }
             .autoDisposable(view.scope())
             .subscribe()
 
@@ -587,6 +599,7 @@ class MainViewModel @Inject constructor(
                         !state.defaultSms -> view.requestDefaultSms()
                         !state.smsPermission -> view.requestPermissions()
                         !state.contactPermission -> view.requestPermissions()
+                        !state.phonePermission -> view.requestPermissions()
                         !state.notificationPermission -> {
                             if (prefs.hasAskedForNotificationPermission.get()) {
                                 externalNavigator.showPermissionsInSettings()

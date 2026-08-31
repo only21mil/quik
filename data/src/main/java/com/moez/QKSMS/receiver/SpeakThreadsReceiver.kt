@@ -28,15 +28,26 @@ import javax.inject.Inject
 
 class SpeakThreadsReceiver : BroadcastReceiver() {
 
+    companion object {
+        const val ACTION_SPEAK_MESSAGES = "dev.octoshrimpy.quik.action.ACTION_SPEAK_MESSAGES"
+        const val EXTRA_THREAD_ID = "threadId"
+    }
+
     @Inject lateinit var speakThread: SpeakThreads
     @Inject lateinit var conversationRepo: ConversationRepository
 
-
     override fun onReceive(context: Context, intent: Intent) {
-        AndroidInjection.inject(this, context)
+        val threadId = intent.getLongExtra(EXTRA_THREAD_ID, 0)
+        val isValidRequest = ReceiverRequestValidator.isSpeakRequest(
+            intent.action,
+            ACTION_SPEAK_MESSAGES,
+            intent.hasExtra(EXTRA_THREAD_ID),
+            threadId
+        )
+        if (!isValidRequest) return
 
+        AndroidInjection.inject(this, context)
         val pendingResult = goAsync()
-        val threadId = intent.getLongExtra("threadId", 0)
 
         val threads = when {
             (threadId == -1L) -> conversationRepo.getUnseenIds()

@@ -28,4 +28,6 @@ data class SubscriptionInfoCompat(private val subscriptionInfo: SubscriptionInfo
 
     val displayName: CharSequence get() = subscriptionInfo.displayName
 
+    val countryIso: String get() = subscriptionInfo.countryIso.orEmpty()
+
 }

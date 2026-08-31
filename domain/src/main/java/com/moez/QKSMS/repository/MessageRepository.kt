@@ -93,6 +93,16 @@ interface MessageRepository {
 
     fun sendMessage(messageId: Long): Collection<Message>
 
+    /** Sends exactly one dedicated reaction carrier without compose-message preferences. */
+    fun sendReaction(request: SendReactionRequest): SendReactionResult
+
+    /** Applies an Android sent callback once, committing the local badge only on success. */
+    fun completeReaction(
+        attemptId: String,
+        transportKey: String,
+        resultCode: Int,
+    ): ReactionCallbackResult
+
     fun cancelDelayedSmsAlarm(messageId: Long)
 
     fun insertReceivedSms(subId: Int, address: String, body: String, sentTime: Long): Message

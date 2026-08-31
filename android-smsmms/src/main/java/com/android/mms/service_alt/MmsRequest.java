@@ -40,7 +40,7 @@ import com.android.mms.service_alt.exception.MmsHttpException;
 /**
  * Base class for MMS requests. This has the common logic of sending/downloading MMS.
  */
-public abstract class MmsRequest {
+abstract class MmsRequest {
     private static final int RETRY_TIMES = 3;
 
     /**
@@ -140,7 +140,7 @@ public abstract class MmsRequest {
      * @param context The context
      * @param networkManager The network manager to use
      */
-    public void execute(Context context, MmsNetworkManager networkManager) {
+    void execute(Context context, MmsNetworkManager networkManager) {
         int result = SmsManager.MMS_ERROR_UNSPECIFIED;
         int httpStatusCode = 0;
         byte[] response = null;

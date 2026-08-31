@@ -27,6 +27,7 @@ import dagger.android.AndroidInjection
 import dev.octoshrimpy.quik.interactor.MarkFailed
 import dev.octoshrimpy.quik.interactor.MarkSent
 import dev.octoshrimpy.quik.repository.MessageRepository
+import dev.octoshrimpy.quik.repository.ReactionTransportPolicy
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -35,6 +36,8 @@ class MessageSentReceiver : BroadcastReceiver() {
     companion object {
         const val EXTRA_QUIK_MESSAGE_ID = "messageId"
         const val EXTRA_IS_NOTIFY = "isNotify"
+        const val EXTRA_REACTION_ATTEMPT_ID = "reactionAttemptId"
+        const val EXTRA_REACTION_TRANSPORT_KEY = "reactionTransportKey"
     }
 
     @Inject lateinit var markSent: MarkSent
@@ -48,12 +51,40 @@ class MessageSentReceiver : BroadcastReceiver() {
 
         // if have EXTRA_FILE_PATH then need to delete mms cache file
         intent.extras?.getString(EXTRA_FILE_PATH)?.let { filePath ->
-            Timber.v("delete mms temp file $filePath")
+            Timber.v("delete private mms send file")
             File(filePath).delete()
         }
 
         if (intent.extras?.getInt(EXTRA_IS_NOTIFY, -1) != -1) {
             Timber.v("notify message sent resultcode $resultCode")
+            return
+        }
+
+        val reactionAttemptId = intent.getStringExtra(EXTRA_REACTION_ATTEMPT_ID)
+        val reactionTransportKey = intent.getStringExtra(EXTRA_REACTION_TRANSPORT_KEY)
+        if (!reactionAttemptId.isNullOrBlank() || !reactionTransportKey.isNullOrBlank()) {
+            if (reactionAttemptId.isNullOrBlank() || reactionTransportKey.isNullOrBlank()) {
+                Timber.e("incomplete reaction callback correlation")
+                return
+            }
+            val callbackUri = ReactionTransportPolicy.ProviderIdentity
+                .decode(reactionTransportKey)
+                ?.toUri()
+                ?.toString()
+            if (intent.dataString != callbackUri) {
+                Timber.e("reaction callback transport correlation mismatch")
+                return
+            }
+            val pendingResult = goAsync()
+            try {
+                messageRepo.completeReaction(
+                    attemptId = reactionAttemptId,
+                    transportKey = reactionTransportKey,
+                    resultCode = resultCode,
+                )
+            } finally {
+                pendingResult.finish()
+            }
             return
         }
 
@@ -73,7 +104,7 @@ class MessageSentReceiver : BroadcastReceiver() {
                         pendingResult.finish()
                     }
                 }
-            } ?: let { Timber.e("couldn't get message id") }
+            } ?: let { Timber.e("couldn't correlate sent message") }
     }
 
 }

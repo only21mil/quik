@@ -21,6 +21,10 @@ package dev.octoshrimpy.quik.migration
 import android.annotation.SuppressLint
 import dev.octoshrimpy.quik.extensions.map
 import dev.octoshrimpy.quik.mapper.CursorToContactImpl
+import dev.octoshrimpy.quik.model.EmojiReaction
+import dev.octoshrimpy.quik.model.Message
+import dev.octoshrimpy.quik.model.ReactionAttempt
+import dev.octoshrimpy.quik.repository.ReactionTransportPolicy
 import dev.octoshrimpy.quik.util.Preferences
 import io.realm.DynamicRealm
 import io.realm.DynamicRealmObject
@@ -29,6 +33,7 @@ import io.realm.RealmList
 import io.realm.RealmMigration
 import io.realm.Sort
 import timber.log.Timber
+import java.security.MessageDigest
 import javax.inject.Inject
 
 class QkRealmMigration @Inject constructor(
@@ -37,11 +42,35 @@ class QkRealmMigration @Inject constructor(
 ) : RealmMigration {
 
     companion object {
-        const val SCHEMA_VERSION: Long = 15
+        const val SCHEMA_VERSION: Long = 19
+        private val LEGACY_TRANSPORT_KEY = Regex("^content://(sms|mms)/(\\d+)$")
+
+        internal fun fromMeForCarrier(type: String?, boxId: Int): Boolean? =
+            EmojiReaction.fromMeForCarrier(type, boxId)
+
+        internal fun requireSupportedVersionRange(oldVersion: Long, newVersion: Long) {
+            check(newVersion >= oldVersion) {
+                "Realm downgrade from v$oldVersion to v$newVersion is not supported"
+            }
+        }
+
+        /**
+         * Schema 16 could infer SENT from the provider box without receiving Android's sent
+         * callback. Since those two histories are indistinguishable, every legacy attempt must
+         * fail closed. Schema 17 is the first version whose SENT state is callback-only.
+         */
+        internal fun terminalStateForVersion16(): String = ReactionAttempt.State.FAILED.name
+
+        internal fun bodyFingerprint(body: String): String = MessageDigest
+            .getInstance("SHA-256")
+            .digest(body.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
     }
 
     @SuppressLint("ApplySharedPref")
     override fun migrate(realm: DynamicRealm, oldVersion: Long, newVersion: Long) {
+        requireSupportedVersionRange(oldVersion, newVersion)
+
         var version = oldVersion
 
         if (version == 0L) {
@@ -297,7 +326,100 @@ class QkRealmMigration @Inject constructor(
                     ?.addField("sendAsGroup", Boolean::class.java, FieldAttribute.REQUIRED)
             }
 
-            version ++
+            version++
+        }
+
+        if (version == 15L) {
+            realm.schema.get("EmojiReaction")
+                ?.addField("fromMe", Boolean::class.javaObjectType)
+                ?.transform { reaction ->
+                    val carrier = realm.where("Message")
+                        .equalTo("id", reaction.getLong("reactionMessageId"))
+                        .findFirst()
+                    val fromMe = carrier?.let { message ->
+                        fromMeForCarrier(message.getString("type"), message.getInt("boxId"))
+                    }
+                    if (fromMe != null) {
+                        reaction.setBoolean("fromMe", fromMe)
+                    }
+                }
+
+            realm.schema.create("ReactionAttempt")
+                .addField("id", String::class.java, FieldAttribute.PRIMARY_KEY, FieldAttribute.REQUIRED)
+                .addField("targetKey", String::class.java, FieldAttribute.INDEXED, FieldAttribute.REQUIRED)
+                .addField("transportKey", String::class.java, FieldAttribute.INDEXED)
+                .addField("threadId", Long::class.java, FieldAttribute.INDEXED, FieldAttribute.REQUIRED)
+                .addField("body", String::class.java, FieldAttribute.REQUIRED)
+                .addField("state", String::class.java, FieldAttribute.INDEXED, FieldAttribute.REQUIRED)
+                .addField("createdAt", Long::class.java, FieldAttribute.INDEXED, FieldAttribute.REQUIRED)
+
+            version++
+        }
+
+        if (version == 16L) {
+            realm.schema.get("ReactionAttempt")
+                ?.addField("handoffAt", Long::class.java, FieldAttribute.INDEXED, FieldAttribute.REQUIRED)
+                ?.transform { attempt ->
+                    val targetKey = migrateVersion16TargetKey(realm, attempt.getString("targetKey"))
+                    val transportKey = migrateVersion16TransportKey(
+                        realm,
+                        attempt.getString("transportKey"),
+                    )
+                    if (targetKey != null) attempt.setString("targetKey", targetKey)
+                    if (transportKey != null) attempt.setString("transportKey", transportKey)
+                    attempt.setString(
+                        "state",
+                        terminalStateForVersion16(),
+                    )
+                    attempt.setLong("handoffAt", 0L)
+                }
+
+            version++
+        }
+
+        if (version == 17L) {
+            realm.schema.get("ReactionAttempt")
+                ?.addField(
+                    "ownerSessionId",
+                    String::class.java,
+                    FieldAttribute.INDEXED,
+                    FieldAttribute.REQUIRED,
+                )
+                ?.addField(
+                    "routeKind",
+                    String::class.java,
+                    FieldAttribute.INDEXED,
+                    FieldAttribute.REQUIRED,
+                )
+                ?.addField("routeFingerprint", String::class.java, FieldAttribute.REQUIRED)
+                ?.addField("routeRegion", String::class.java, FieldAttribute.REQUIRED)
+                ?.addField("targetBodyFingerprint", String::class.java, FieldAttribute.REQUIRED)
+                ?.addField("bodyFingerprint", String::class.java, FieldAttribute.REQUIRED)
+                ?.transform { attempt ->
+                    attempt.setString("ownerSessionId", "")
+                    attempt.setString("routeKind", "")
+                    attempt.setString("routeFingerprint", "")
+                    attempt.setString("routeRegion", "")
+                    attempt.setString("targetBodyFingerprint", "")
+                    attempt.setString(
+                        "bodyFingerprint",
+                        bodyFingerprint(attempt.getString("body").orEmpty()),
+                    )
+                    attempt.setString("state", ReactionAttempt.State.FAILED.name)
+                }
+
+            version++
+        }
+
+        if (version == 18L) {
+            realm.schema.get("ReactionAttempt")
+                ?.addField("routeDirection", String::class.java, FieldAttribute.REQUIRED)
+                ?.transform { attempt ->
+                    attempt.setString("routeDirection", "")
+                    attempt.setString("state", ReactionAttempt.State.FAILED.name)
+                }
+
+            version++
         }
 
         check(version >= SCHEMA_VERSION) {
@@ -311,6 +433,45 @@ class QkRealmMigration @Inject constructor(
 
         // else
         Timber.d("Realm migration from v$oldVersion to v$newVersion succeeded")
+    }
+
+    private fun migrateVersion16TargetKey(realm: DynamicRealm, value: String?): String? {
+        value?.let(ReactionTransportPolicy.ProviderIdentity::decode)?.let { return it.encode() }
+        val fields = value?.split(':') ?: return null
+        if (fields.size != 4 || fields[0] != "v1") return null
+        val realmMessageId = fields[1].toLongOrNull()?.takeIf { it > 0L } ?: return null
+        val threadId = fields[2].toLongOrNull()?.takeIf { it > 0L } ?: return null
+        val subId = fields[3].toIntOrNull()?.takeIf { it >= 0 } ?: return null
+        val message = realm.where("Message")
+            .equalTo("id", realmMessageId)
+            .equalTo("threadId", threadId)
+            .equalTo("subId", subId)
+            .findFirst()
+            ?: return null
+        return providerKey(message)
+    }
+
+    private fun migrateVersion16TransportKey(realm: DynamicRealm, value: String?): String? {
+        value?.let(ReactionTransportPolicy.ProviderIdentity::decode)?.let { return it.encode() }
+        val match = value?.let { LEGACY_TRANSPORT_KEY.matchEntire(it) } ?: return null
+        val type = match.groupValues[1]
+        val contentId = match.groupValues[2].toLongOrNull()?.takeIf { it > 0L } ?: return null
+        val message = realm.where("Message")
+            .equalTo("type", type)
+            .equalTo("contentId", contentId)
+            .findFirst()
+            ?: return null
+        return providerKey(message)
+    }
+
+    private fun providerKey(message: DynamicRealmObject): String? {
+        val type = message.getString("type")
+            ?.takeIf { it == Message.TYPE_SMS || it == Message.TYPE_MMS }
+            ?: return null
+        val contentId = message.getLong("contentId").takeIf { it > 0L } ?: return null
+        val threadId = message.getLong("threadId").takeIf { it > 0L } ?: return null
+        val subId = message.getInt("subId").takeIf { it >= 0 } ?: return null
+        return ReactionTransportPolicy.ProviderIdentity(type, contentId, threadId, subId).encode()
     }
 
 }

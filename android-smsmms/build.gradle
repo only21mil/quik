@@ -28,8 +28,14 @@ android {
     }
 
     useLibrary 'org.apache.http.legacy'
+    sourceSets {
+        main.java.exclude(
+                'com/android/mms/service_alt/MmsRequestManager.java',
+                'com/android/mms/service_alt/SendRequest.java')
+    }
     lint {
-        abortOnError false
+        abortOnError true
+        baseline file("lint-baseline.xml")
     }
     namespace 'com.klinker.android.send_message'
 }

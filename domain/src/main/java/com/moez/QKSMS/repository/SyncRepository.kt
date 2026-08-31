@@ -34,6 +34,9 @@ interface SyncRepository {
 
     fun syncMessages()
 
+    /** Repairs durable reaction attempt state from provider rows without submitting anything. */
+    fun reconcileReactionAttempts()
+
     fun syncMessage(uri: Uri, messageId: Long = 0): Message?
 
     fun syncContacts()

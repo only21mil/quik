@@ -52,6 +52,8 @@ abstract class QkRealmAdapter<T : RealmModel, VH : QkViewHolder> : RealmRecycler
 
     private var selection = mutableListOf<Long>()
 
+    protected fun selectedIds(): List<Long> = selection.toList()
+
     /**
      * Mark this message as highlighted
      */

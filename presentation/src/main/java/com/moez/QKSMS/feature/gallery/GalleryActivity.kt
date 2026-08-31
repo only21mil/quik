@@ -19,6 +19,7 @@
 package dev.octoshrimpy.quik.feature.gallery
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -105,7 +106,9 @@ class GalleryActivity : QkActivity(), GalleryView {
     override fun pageChanged(): Observable<MmsPart> = pageChangedSubject
 
     override fun requestStoragePermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

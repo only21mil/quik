@@ -1,0 +1,260 @@
+{
+  "policy_schema_version": 3,
+  "validator_version": 3,
+  "receipt_schema_id": "urn:only21mil:quik:apk-provenance-receipt:3",
+  "receipt_schema_version": 3,
+  "repository": "only21mil/quik",
+  "source_ref": "refs/heads/main",
+  "workflow": {
+    "name": "Android main",
+    "path": ".github/workflows/android-main.yml",
+    "event": "push",
+    "head_branch": "main"
+  },
+  "artifact_name_template": "quik-android-debug-{source_sha}",
+  "archive_entries": [
+    "QUIK-debug.apk",
+    "QUIK-debug.apk.sha256"
+  ],
+  "source_delivery": {
+    "commit_url_template": "https://github.com/only21mil/quik/tree/{source_sha}",
+    "archive_api_template": "repos/only21mil/quik/tarball/{source_sha}",
+    "archive_url_template": "https://api.github.com/repos/only21mil/quik/tarball/{source_sha}",
+    "license_path": "LICENSE",
+    "license_url_template": "https://github.com/only21mil/quik/blob/{source_sha}/LICENSE",
+    "license_spdx": "GPL-3.0-or-later"
+  },
+  "package": {
+    "name": "io.github.only21mil.quik.reactions.debug",
+    "version_code": "2238001",
+    "version_name": "4.3.6-reactions.1-debug",
+    "min_sdk": "23",
+    "target_sdk": "33"
+  },
+  "signer": {
+    "mode": "ephemeral-github-actions-debug",
+    "expected_certificate_sha256": null,
+    "identity_bound": false,
+    "limitation": "The GitHub-hosted debug build uses a newly generated debug key. Authenticated artifact metadata binds this ephemeral signer to one exact archive but does not establish a stable publisher identity."
+  },
+  "allowed_permissions": [
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.BLUETOOTH",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.MODIFY_AUDIO_SETTINGS",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.READ_CONTACTS",
+    "android.permission.READ_PHONE_STATE",
+    "android.permission.READ_SMS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.RECEIVE_MMS",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.SEND_SMS",
+    "android.permission.VIBRATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "io.github.only21mil.quik.reactions.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "declared_permissions": [
+    "io.github.only21mil.quik.reactions.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "allowed_sensitive_permissions": [
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.READ_CONTACTS",
+    "android.permission.READ_PHONE_STATE",
+    "android.permission.READ_SMS",
+    "android.permission.RECEIVE_MMS",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.SEND_SMS",
+    "android.permission.WRITE_EXTERNAL_STORAGE"
+  ],
+  "allowed_exported_components": [
+    "activity:dev.octoshrimpy.quik.feature.compose.ComposeActivity",
+    "activity:dev.octoshrimpy.quik.feature.main.MainActivity",
+    "receiver:androidx.work.impl.diagnostics.DiagnosticsReceiver",
+    "receiver:dev.octoshrimpy.quik.feature.widget.WidgetProvider",
+    "receiver:dev.octoshrimpy.quik.feature.widget.WidgetSpeakUnseenProvider",
+    "receiver:dev.octoshrimpy.quik.receiver.BootReceiver",
+    "receiver:dev.octoshrimpy.quik.receiver.DefaultSmsChangedReceiver",
+    "receiver:dev.octoshrimpy.quik.receiver.MmsWapPushReceiver",
+    "receiver:dev.octoshrimpy.quik.receiver.SmsProviderChangedReceiver",
+    "receiver:dev.octoshrimpy.quik.receiver.SmsReceivedReceiver",
+    "service:androidx.work.impl.background.systemjob.SystemJobService",
+    "service:dev.octoshrimpy.quik.service.HeadlessSmsSendService"
+  ],
+  "allowed_exported_component_permissions": [
+    "activity:dev.octoshrimpy.quik.feature.compose.ComposeActivity=",
+    "activity:dev.octoshrimpy.quik.feature.main.MainActivity=",
+    "receiver:androidx.work.impl.diagnostics.DiagnosticsReceiver=android.permission.DUMP",
+    "receiver:dev.octoshrimpy.quik.feature.widget.WidgetProvider=",
+    "receiver:dev.octoshrimpy.quik.feature.widget.WidgetSpeakUnseenProvider=",
+    "receiver:dev.octoshrimpy.quik.receiver.BootReceiver=",
+    "receiver:dev.octoshrimpy.quik.receiver.DefaultSmsChangedReceiver=",
+    "receiver:dev.octoshrimpy.quik.receiver.MmsWapPushReceiver=android.permission.BROADCAST_WAP_PUSH",
+    "receiver:dev.octoshrimpy.quik.receiver.SmsProviderChangedReceiver=",
+    "receiver:dev.octoshrimpy.quik.receiver.SmsReceivedReceiver=android.permission.BROADCAST_SMS",
+    "service:androidx.work.impl.background.systemjob.SystemJobService=android.permission.BIND_JOB_SERVICE",
+    "service:dev.octoshrimpy.quik.service.HeadlessSmsSendService=android.permission.SEND_RESPOND_VIA_MESSAGE"
+  ],
+  "allowed_exported_intent_filters": [
+    {
+      "component": "activity:dev.octoshrimpy.quik.feature.compose.ComposeActivity",
+      "filters": [
+        {
+          "actions": [
+            "android.intent.action.MAIN",
+            "android.intent.action.SEND",
+            "android.intent.action.SENDTO",
+            "android.intent.action.VIEW"
+          ],
+          "categories": [
+            "android.intent.category.BROWSABLE",
+            "android.intent.category.DEFAULT"
+          ],
+          "data_schemes": ["mms", "mmsto", "sms", "sms_body", "smsto"],
+          "data_mime_types": []
+        },
+        {
+          "actions": ["android.intent.action.SEND"],
+          "categories": ["android.intent.category.DEFAULT"],
+          "data_schemes": [],
+          "data_mime_types": ["*/*"]
+        },
+        {
+          "actions": ["android.intent.action.SEND_MULTIPLE"],
+          "categories": ["android.intent.category.DEFAULT"],
+          "data_schemes": [],
+          "data_mime_types": ["*/*"]
+        }
+      ]
+    },
+    {
+      "component": "activity:dev.octoshrimpy.quik.feature.main.MainActivity",
+      "filters": [
+        {
+          "actions": ["android.intent.action.MAIN"],
+          "categories": [
+            "android.intent.category.APP_MESSAGING",
+            "android.intent.category.DEFAULT",
+            "android.intent.category.LAUNCHER"
+          ],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:androidx.work.impl.diagnostics.DiagnosticsReceiver",
+      "filters": [
+        {
+          "actions": ["androidx.work.diagnostics.REQUEST_DIAGNOSTICS"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.feature.widget.WidgetProvider",
+      "filters": [
+        {
+          "actions": [
+            "android.appwidget.action.APPWIDGET_UPDATE",
+            "io.github.only21mil.quik.reactions.debug.action.ACTION_NOTIFY_DATASET_CHANGED"
+          ],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.feature.widget.WidgetSpeakUnseenProvider",
+      "filters": [
+        {
+          "actions": [
+            "android.appwidget.action.APPWIDGET_UPDATE",
+            "io.github.only21mil.quik.reactions.debug.action.ACTION_NOTIFY_DATASET_CHANGED"
+          ],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.receiver.BootReceiver",
+      "filters": [
+        {
+          "actions": ["android.intent.action.BOOT_COMPLETED"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.receiver.DefaultSmsChangedReceiver",
+      "filters": [
+        {
+          "actions": ["android.provider.action.DEFAULT_SMS_PACKAGE_CHANGED"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.receiver.MmsWapPushReceiver",
+      "filters": [
+        {
+          "actions": ["android.provider.Telephony.WAP_PUSH_DELIVER"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": ["application/vnd.wap.mms-message"]
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.receiver.SmsProviderChangedReceiver",
+      "filters": [
+        {
+          "actions": ["android.provider.action.EXTERNAL_PROVIDER_CHANGE"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "receiver:dev.octoshrimpy.quik.receiver.SmsReceivedReceiver",
+      "filters": [
+        {
+          "actions": ["android.provider.Telephony.SMS_DELIVER"],
+          "categories": [],
+          "data_schemes": [],
+          "data_mime_types": []
+        }
+      ]
+    },
+    {
+      "component": "service:androidx.work.impl.background.systemjob.SystemJobService",
+      "filters": []
+    },
+    {
+      "component": "service:dev.octoshrimpy.quik.service.HeadlessSmsSendService",
+      "filters": [
+        {
+          "actions": ["android.intent.action.RESPOND_VIA_MESSAGE"],
+          "categories": ["android.intent.category.DEFAULT"],
+          "data_schemes": ["mms", "mmsto", "sms", "smsto"],
+          "data_mime_types": []
+        }
+      ]
+    }
+  ]
+}

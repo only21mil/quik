@@ -328,6 +328,7 @@ class MainActivity : QkThemedActivity(), MainView {
                 snackbarBinding.root.isVisible = (!state.defaultSms ||
                         !state.smsPermission ||
                         !state.contactPermission ||
+                        !state.phonePermission ||
                         !state.notificationPermission)
             }
 
@@ -372,6 +373,12 @@ class MainActivity : QkThemedActivity(), MainView {
                 snackbarBinding.snackbarButton.setText(R.string.main_permission_allow)
             }
 
+            !state.phonePermission -> {
+                snackbarBinding.snackbarTitle.setText(R.string.main_permission_required)
+                snackbarBinding.snackbarMessage.setText(R.string.main_permission_phone)
+                snackbarBinding.snackbarButton.setText(R.string.main_permission_allow)
+            }
+
             !state.notificationPermission -> {
                 snackbarBinding.snackbarTitle.setText(R.string.main_permission_required)
                 snackbarBinding.snackbarMessage.setText(R.string.main_permission_notifications)
@@ -405,7 +412,8 @@ class MainActivity : QkThemedActivity(), MainView {
         val permissions = mutableListOf(
             Manifest.permission.READ_SMS,
             Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_CONTACTS
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_PHONE_STATE
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)

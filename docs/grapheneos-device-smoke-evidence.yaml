@@ -1,0 +1,269 @@
+schema_version: 3
+run:
+  status: not-run
+  approval_reference: ""
+  device_alias: DUT
+  profile_alias: ""
+  started_at_minute: ""
+  ended_at_minute: ""
+  rollback_deadline: ""
+  participant_consent:
+    RACHEL: false
+    MASON: false
+    other_group_participants: none
+  approved_actions:
+    adb_connection: false
+    profile_creation: false
+    calls_and_sms_enablement: false
+    exact_apk_install: false
+    permission_grants: false
+    permission_removal: false
+    sms_role_change: false
+    sms_role_restoration: false
+    sms_sends: false
+    mms_sends: false
+    reaction_adds: false
+    reaction_removes: false
+    radio_or_sim_changes: false
+    app_restart: false
+    force_stop: false
+    narrow_diagnostic: false
+    uninstall: false
+    profile_deletion: false
+
+artifact:
+  sha256: ""
+  signer_sha256: ""
+  application_id: ""
+  version_code: ""
+  version_name: ""
+  launcher_label: ""
+  launcher_label_matches_protocol: false
+  debuggable: unknown
+  sms_role_eligible: unknown
+  identity_matches_protocol: false
+
+device:
+  grapheneos_build_fingerprint: ""
+  security_patch: ""
+  test_user_id: ""
+  sim_mode: unknown
+  original_radio_state: unknown
+  original_default_sms_sim: unknown
+  final_radio_state: unknown
+  final_default_sms_sim: unknown
+
+preflight:
+  original_test_profile_sms_holder: ""
+  original_owner_profile_sms_holder: ""
+  debug_package_absent_test_profile: unknown
+  debug_package_absent_owner_profile: unknown
+  one_to_one_sms_thread_present: false
+  one_to_one_text_mms_thread_present: false
+  true_group_mms_thread_present: false
+  group_participants_match_all_devices: false
+  routes_unambiguous: false
+  unexpected_history_seen: false
+
+install_and_sync:
+  installed_package_path_present: false
+  installed_identity_matches: false
+  visible_launcher_label: ""
+  visible_launcher_label_matches_protocol: false
+  test_profile_sms_holder_after_role_change: ""
+  owner_profile_sms_holder_unchanged: false
+  initial_sync_settled: false
+  thread_types_unchanged: false
+  participants_unchanged: false
+
+cases:
+  SMS-OA:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    add_attempt_state: unknown
+    add_badge_state: unknown
+    add_peer_result: unknown
+    add_copies_seen: null
+    remove_attempt_state: unknown
+    remove_badge_state: unknown
+    remove_peer_result: unknown
+    remove_copies_seen: null
+    note: ""
+  SMS-IA:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    peer_add_result: unknown
+    badge_sender_alias: ""
+    raw_fallback_state: unknown
+    peer_remove_result: unknown
+    final_badge_state: unknown
+    add_copies_seen: null
+    remove_copies_seen: null
+    note: ""
+  MMS-OA:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    add_attempt_state: unknown
+    add_badge_state: unknown
+    add_peer_result: unknown
+    add_copies_seen: null
+    remove_attempt_state: unknown
+    remove_badge_state: unknown
+    remove_peer_result: unknown
+    remove_copies_seen: null
+    route_remained_mms: unknown
+    note: ""
+  MMS-IA:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    peer_add_result: unknown
+    badge_sender_alias: ""
+    raw_fallback_state: unknown
+    peer_remove_result: unknown
+    final_badge_state: unknown
+    thread_remained_mms: unknown
+    add_copies_seen: null
+    remove_copies_seen: null
+    note: ""
+  GM-BASE:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    base_copy_count_rachel: null
+    base_copy_count_mason: null
+    one_to_one_thread_created: unknown
+    note: ""
+  GM-OA:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    add_attempt_state: unknown
+    add_peer_result_rachel: unknown
+    add_peer_result_mason: unknown
+    add_copy_count_rachel: null
+    add_copy_count_mason: null
+    remove_attempt_state: unknown
+    remove_peer_result_rachel: unknown
+    remove_peer_result_mason: unknown
+    remove_copy_count_rachel: null
+    remove_copy_count_mason: null
+    sms_fan_out_seen: unknown
+    note: ""
+  GM-R:
+    result: not-run
+    marker_alias: ""
+    badge_sender_alias: ""
+    badge_state: unknown
+    raw_fallback_state: unknown
+    add_copy_count_dut: null
+    add_copy_count_mason: null
+    note: ""
+  GM-M:
+    result: not-run
+    marker_alias: ""
+    rachel_badge_state: unknown
+    mason_badge_state: unknown
+    sender_attribution: unknown
+    raw_fallback_state: unknown
+    add_copy_count_dut: null
+    add_copy_count_rachel: null
+    note: ""
+  GM-RM:
+    result: not-run
+    marker_alias: ""
+    rachel_badge_state: unknown
+    mason_badge_state: unknown
+    wrong_sender_affected: unknown
+    remove_copy_count_dut: null
+    remove_copy_count_mason: null
+    note: ""
+  GM-MM:
+    result: not-run
+    marker_alias: ""
+    final_badge_state: unknown
+    wrong_sender_affected: unknown
+    remove_copy_count_dut: null
+    remove_copy_count_rachel: null
+    note: ""
+  DS-A:
+    result: not-run
+    marker_alias: ""
+    selected_sim_alias: SIM-A
+    add_result: unknown
+    remove_result: unknown
+    route_unchanged: unknown
+    add_copies_seen: null
+    remove_copies_seen: null
+    note: ""
+  DS-B:
+    result: not-run
+    marker_alias: ""
+    selected_sim_alias: SIM-B
+    add_result: unknown
+    remove_result: unknown
+    route_unchanged: unknown
+    add_copies_seen: null
+    remove_copies_seen: null
+    note: ""
+  RL-1:
+    result: not-run
+    marker_alias: ""
+    sim_alias: unknown
+    force_stop_approved: false
+    pre_restart_state: unknown
+    post_restart_state: unknown
+    callback_result: unknown
+    post_callback_relaunch_state: unknown
+    route_unchanged: unknown
+    badge_state: unknown
+    copies_seen: null
+    note: ""
+
+allowed_observation_values:
+  - unknown
+  - pass
+  - fail
+  - stopped
+  - not-run
+  - pending
+  - succeeded
+  - failed
+  - badge
+  - no-badge
+  - raw-fallback
+  - duplicate
+  - missing
+  - wrong-target
+  - wrong-sender
+
+stop:
+  triggered: false
+  phase: ""
+  category: ""
+  private_detail_recorded_elsewhere: false
+
+restore:
+  radio_state_restored: false
+  default_sms_sim_restored: false
+  original_test_profile_sms_holder_restored: false
+  owner_profile_sms_holder_unchanged: false
+  prior_messaging_app_opens: false
+  debug_package_final_state: unknown
+  disposable_profile_final_state: unknown
+  granted_permissions_final_state: unknown
+  raw_diagnostics_final_state: unknown
+  rollback_completed_at_minute: ""
+
+redaction_attestation:
+  phone_numbers_absent: false
+  contact_addresses_absent: false
+  private_message_content_absent: false
+  raw_reaction_control_messages_absent: false
+  credentials_and_secrets_absent: false
+  full_logs_and_provider_dumps_absent: false
+  repository_template_remained_blank: false
+  reviewed_by: ""

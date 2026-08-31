@@ -36,6 +36,14 @@ android {
     namespace 'dev.octoshrimpy.quik.domain'
 }
 
+androidComponents {
+    beforeVariants(selector().all()) { variantBuilder ->
+        // This module has no instrumentation tests. Realm's transformer turns its empty
+        // androidTest classes artifact into a zero-byte jar that D8 cannot read.
+        variantBuilder.enableAndroidTest = false
+    }
+}
+
 dependencies {
     // androidx
     implementation "androidx.documentfile:documentfile:$androidx_documentfile_version"

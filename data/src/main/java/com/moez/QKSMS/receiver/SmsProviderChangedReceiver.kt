@@ -21,8 +21,13 @@ package dev.octoshrimpy.quik.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.provider.Telephony
 import dagger.android.AndroidInjection
 import dev.octoshrimpy.quik.interactor.SyncMessage
+import dev.octoshrimpy.quik.manager.PermissionManager
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -39,14 +44,32 @@ import javax.inject.Inject
 class SmsProviderChangedReceiver : BroadcastReceiver() {
 
     @Inject lateinit var syncMessage: SyncMessage
+    @Inject lateinit var permissionManager: PermissionManager
 
     override fun onReceive(context: Context, intent: Intent) {
-        AndroidInjection.inject(this, context)
+        val uri = intent.data ?: return
+        val isValidRequest = ReceiverRequestValidator.isProviderChangeRequest(
+            intent.action,
+            Telephony.Sms.Intents.ACTION_EXTERNAL_PROVIDER_CHANGE,
+            uri.scheme,
+            uri.authority,
+            uri.lastPathSegment
+        )
+        if (!isValidRequest) return
 
-        // Sync the message to our realm
+        AndroidInjection.inject(this, context)
+        if (!permissionManager.isDefaultSms()) return
+
         val pendingResult = goAsync()
-        syncMessage.execute(SyncMessage.Params(intent.data ?: return)) {
+        try {
+            syncMessage.buildObservable(SyncMessage.Params(uri))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally { pendingResult.finish() }
+                .subscribe({}, Timber::w)
+        } catch (error: Throwable) {
             pendingResult.finish()
+            throw error
         }
     }
 

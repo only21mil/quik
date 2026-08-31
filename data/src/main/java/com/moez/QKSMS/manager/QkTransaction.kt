@@ -100,6 +100,105 @@ object QkTransaction {
                 (longAsMms && getNumSmsPages(stripUnicode, body) > 3)
     }
 
+    sealed class ReactionStageResult {
+        data class Staged(val uri: Uri) : ReactionStageResult()
+        object NotOneSmsSegment : ReactionStageResult()
+        object Failed : ReactionStageResult()
+    }
+
+    /**
+     * Stages a raw reaction SMS in an already-selected thread. Compose preferences are not read.
+     */
+    fun stageReactionSms(
+        context: Context,
+        subscriptionId: Int,
+        threadId: Long,
+        address: String,
+        body: String,
+        stagedAt: Long,
+    ): ReactionStageResult {
+        if (
+            subscriptionId < 0 || threadId <= 0L || address.isBlank() || body.isEmpty() || stagedAt <= 0L ||
+            SmsMessage.calculateLength(body, false)[0] != 1
+        ) {
+            return if (body.isNotEmpty() && SmsMessage.calculateLength(body, false)[0] != 1) {
+                ReactionStageResult.NotOneSmsSegment
+            } else {
+                ReactionStageResult.Failed
+            }
+        }
+
+        val uri = try {
+            context.contentResolver.insert(
+                Telephony.Sms.CONTENT_URI,
+                contentValuesOf(
+                    Telephony.Sms.ADDRESS to address,
+                    Telephony.Sms.BODY to body,
+                    Telephony.Sms.DATE to stagedAt,
+                    Telephony.Sms.READ to 1,
+                    Telephony.Sms.TYPE to Telephony.Sms.MESSAGE_TYPE_OUTBOX,
+                    Telephony.Sms.THREAD_ID to threadId,
+                    Telephony.Sms.SUBSCRIPTION_ID to subscriptionId,
+                ),
+            )
+        } catch (error: Exception) {
+            Timber.e("failed to stage reaction sms")
+            null
+        }
+        return uri?.let(ReactionStageResult::Staged) ?: ReactionStageResult.Failed
+    }
+
+    /** Stages one text-only MMS for a provider-proven true-group route. */
+    fun stageReactionMms(
+        context: Context,
+        subscriptionId: Int,
+        addresses: List<String>,
+        body: String,
+        stagedAt: Long,
+    ): ReactionStageResult {
+        if (
+            subscriptionId < 0 || addresses.size < 2 || addresses.any(String::isBlank) ||
+            body.isEmpty() || stagedAt <= 0L || stagedAt % 1000L != 0L
+        ) {
+            return ReactionStageResult.Failed
+        }
+
+        val uri = createMmsMessage(
+            context = context,
+            subscriptionId = subscriptionId,
+            text = body,
+            addresses = addresses.toTypedArray(),
+            parts = mutableListOf(),
+            dateSeconds = stagedAt / 1000L,
+        )
+        return if (uri == Uri.EMPTY) {
+            ReactionStageResult.Failed
+        } else {
+            ReactionStageResult.Staged(uri)
+        }
+    }
+
+    /**
+     * Submits exactly one staged carrier. SMS uses sendTextMessage, never multipart transport.
+     */
+    fun submitReaction(
+        context: Context,
+        messageUri: Uri,
+        sentIntent: Intent,
+    ): Boolean = if (messageUri.toString().startsWith(Telephony.Mms.CONTENT_URI.toString())) {
+        sendMmsMessage(context, messageUri, sentIntent)
+    } else {
+        sendSinglePartSms(context, messageUri, sentIntent)
+    }
+
+    fun discardStagedReaction(context: Context, messageUri: Uri) {
+        try {
+            context.contentResolver.delete(messageUri, null, null)
+        } catch (error: Exception) {
+            Timber.w("failed to discard staged reaction carrier")
+        }
+    }
+
     fun createMessage(
         context: Context,
         subscriptionId: Int,
@@ -133,7 +232,7 @@ object QkTransaction {
     }
 
     fun explodeMessage(context: Context, messageUri: Uri, asGroup: Boolean): Collection<Uri> {
-        Timber.v("exploding message uri $messageUri")
+        Timber.v("exploding provider message")
 
         if (asGroup)
             return listOf(messageUri)
@@ -145,7 +244,7 @@ object QkTransaction {
 
     fun sendMessage(context: Context, messageUri: Uri, sentIntent: Intent, deliveryIntent: Intent?
     ): Boolean {
-        Timber.v("sending message uri $messageUri")
+        Timber.v("sending provider message")
 
         return if (messageUri.toString().startsWith(Telephony.Mms.CONTENT_URI.toString()))
             sendMmsMessage(context, messageUri, sentIntent)
@@ -174,7 +273,7 @@ object QkTransaction {
             }
 
         if (spaceSeparatedRecipients.isEmpty()) {
-            Timber.e("failed to get provider recipient ids for thread $threadId")
+            Timber.e("failed to get provider recipient ids")
             return listOf()
         }
 
@@ -203,7 +302,7 @@ object QkTransaction {
             ?: let { Timber.e("address provider db query failed") }
 
         if (addresses.isEmpty())
-            Timber.e("no addresses from recipient ids for thread $threadId")
+            Timber.e("no addresses returned for provider recipient ids")
 
         return addresses
     }
@@ -281,7 +380,7 @@ object QkTransaction {
         context: Context, messageUri: Uri, sentIntent: Intent, deliveryIntent: Intent?
     ): Boolean {
         if (messageUri === Uri.EMPTY) {
-            Timber.e("can't send sms. message uri is empty")
+            Timber.e("can't send sms: staged provider record is missing")
             return false
         }
 
@@ -343,21 +442,85 @@ object QkTransaction {
             if (deliveredPI != null) dPI.add(deliveredPI)
         }
 
-        Timber.v("send sms message uri $messageUri")
+        Timber.v("sending sms provider message")
         try {
             smsManager.sendMultipartTextMessage(
                 address, null, parts, sPI, dPI.ifEmpty { null }
             )
         } catch (e: Exception) {
-            Timber.e(e, "send sms exception")
+            Timber.e("sms send failed")
         }
 
         return true
     }
 
+    private fun sendSinglePartSms(
+        context: Context,
+        messageUri: Uri,
+        sentIntent: Intent,
+    ): Boolean {
+        if (messageUri == Uri.EMPTY) return false
+
+        val row = context.contentResolver.query(
+            messageUri,
+            arrayOf(
+                Telephony.Sms._ID,
+                Telephony.Sms.SUBSCRIPTION_ID,
+                Telephony.Sms.ADDRESS,
+                Telephony.Sms.BODY,
+            ),
+            null,
+            null,
+            null,
+        )?.use { cursor ->
+            if (!cursor.moveToFirst()) return false
+            ReactionSmsRow(
+                id = cursor.getInt(0),
+                subscriptionId = cursor.getInt(1),
+                address = cursor.getString(2),
+                body = cursor.getString(3),
+            )
+        } ?: return false
+
+        if (
+            row.id <= 0 || row.subscriptionId < 0 || row.address.isBlank() || row.body.isEmpty() ||
+            SmsMessage.calculateLength(row.body, false)[0] != 1
+        ) {
+            return false
+        }
+
+        val sent = PendingIntent.getBroadcast(
+            context,
+            row.id,
+            sentIntent.setData(messageUri),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        return try {
+            SmsManagerFactory.createSmsManager(row.subscriptionId).sendTextMessage(
+                row.address,
+                null,
+                row.body,
+                sent,
+                null,
+            )
+            true
+        } catch (error: Exception) {
+            Timber.e("failed sending one-part reaction sms")
+            false
+        }
+    }
+
+    private data class ReactionSmsRow(
+        val id: Int,
+        val subscriptionId: Int,
+        val address: String,
+        val body: String,
+    )
+
     private fun createMmsMessage(
         context: Context, subscriptionId: Int, text: String?, addresses: Array<String>,
-        parts: MutableCollection<MMSPart>
+        parts: MutableCollection<MMSPart>,
+        dateSeconds: Long = System.currentTimeMillis() / 1000L,
     ): Uri {
         // add text to the end of the part and send
         if (!text.isNullOrEmpty())
@@ -369,12 +532,12 @@ object QkTransaction {
 
         try {
             return PduPersister.getPduPersister(context).persist(
-                buildPdu(context, subscriptionId, addresses, ArrayList(parts)),
+                buildPdu(context, subscriptionId, addresses, ArrayList(parts), dateSeconds),
                 Telephony.Mms.Outbox.CONTENT_URI, true, true,
                 null, subscriptionId
             )
         } catch (e: Exception) {
-            Timber.e(e, "failed to create mms message")
+            Timber.e("failed to create mms message")
         }
 
         return Uri.EMPTY
@@ -383,14 +546,14 @@ object QkTransaction {
     private fun explodeMmsMessage(context: Context, messageUri: Uri): Collection<Uri> {
         val retVal: MutableCollection<Uri> = ArrayList()
 
-        Timber.v("explode mms message $messageUri")
+        Timber.v("exploding mms provider message")
 
         // load message from provider db as a generic pdu
         val pdu: GenericPdu
         try {
             pdu = PduPersister.getPduPersister(context).load(messageUri)
         } catch (e: MmsException) {
-            Timber.e(e, "load pdu from provider failed")
+            Timber.e("load pdu from provider failed")
             return retVal
         }
 
@@ -439,7 +602,7 @@ object QkTransaction {
                     )
                 )
             } catch (e: Exception) {
-                Timber.e(e, "failed creating provider mms message")
+                Timber.e("failed creating provider mms message")
             }
         }
 
@@ -448,7 +611,7 @@ object QkTransaction {
 
     private fun sendMmsMessage(context: Context, messageUri: Uri, sentIntent: Intent): Boolean {
         try {
-            Timber.v("send mms message uri $messageUri")
+            Timber.v("sending mms provider message")
 
             // update message status to outbox in provider
             if (SqliteWrapper.update(
@@ -459,7 +622,7 @@ object QkTransaction {
                 ),
                 null, null
             ) <= 0)
-                Timber.v("failed to update $messageUri to mms outbox")
+                Timber.v("failed to update provider message to mms outbox")
 
             // get mms id and subscription id from provider
             var id = -1
@@ -488,14 +651,14 @@ object QkTransaction {
             val sendPdu = try {
                 PduPersister.getPduPersister(context).load(messageUri)
             } catch (e: MmsException) {
-                Timber.e(e, "pdu from provider db failed")
+                Timber.e("pdu from provider db failed")
                 return false
             }
 
             val fileName = "send." + UUID.randomUUID() + ".dat"
             val mSendFile = File(context.cacheDir, fileName)
 
-            Timber.v("using file name $fileName")
+            Timber.v("created private mms send file")
 
             val contentUri = try {
                 FileOutputStream(mSendFile).use {
@@ -507,7 +670,7 @@ object QkTransaction {
                     .scheme(ContentResolver.SCHEME_CONTENT)
                     .build()
             } catch (e: IOException) {
-                Timber.e(e, "error writing send file")
+                Timber.e("error writing private mms send file")
                 return false
             }
 
@@ -529,7 +692,7 @@ object QkTransaction {
                 pendingIntent
             )
         } catch (e: Exception) {
-            Timber.e(e, "failed sending mms")
+            Timber.e("failed sending mms")
             return false
         }
 
@@ -537,7 +700,11 @@ object QkTransaction {
     }
 
     private fun buildPdu(
-        context: Context, subscriptionId: Int, recipients: Array<String>, parts: List<MMSPart>
+        context: Context,
+        subscriptionId: Int,
+        recipients: Array<String>,
+        parts: List<MMSPart>,
+        dateSeconds: Long,
     ): SendReq {
         val req = SendReq()
 
@@ -553,7 +720,7 @@ object QkTransaction {
 //            req.subject = EncodedStringValue(subject)
 
         // Date
-        req.date = System.currentTimeMillis() / 1000
+        req.date = dateSeconds
 
         // Body
         val body = PduBody()

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- English-only labels for the experimental reaction picker. -->
+    <string name="reaction_menu_react" translatable="false">React</string>
+    <string name="reaction_picker_title" translatable="false">React to message</string>
+    <string name="reaction_choice_love" translatable="false">❤️ Love</string>
+    <string name="reaction_choice_like" translatable="false">👍 Like</string>
+    <string name="reaction_choice_dislike" translatable="false">👎 Dislike</string>
+    <string name="reaction_choice_laugh" translatable="false">😂 Laugh</string>
+    <string name="reaction_choice_emphasize" translatable="false">‼️ Emphasize</string>
+    <string name="reaction_choice_question" translatable="false">❓ Question</string>
+    <string name="reaction_send_rejected" translatable="false">Couldn\'t send reaction</string>
+</resources>

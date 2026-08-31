@@ -37,9 +37,6 @@ import android.text.TextUtils;
 
 import com.android.mms.MmsConfig;
 import com.android.mms.logs.LogTag;
-import com.android.mms.service_alt.DownloadRequest;
-import com.android.mms.service_alt.MmsNetworkManager;
-import com.android.mms.service_alt.MmsRequestManager;
 import com.google.android.mms.ContentType;
 import com.google.android.mms.MmsException;
 import com.google.android.mms.pdu_alt.DeliveryInd;
@@ -205,49 +202,10 @@ public class PushReceiver extends BroadcastReceiver {
                                 downloadedUrls.add(location);
                             }
 
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                Timber.v("receiving on a lollipop+ device");
-                                boolean useSystem = true;
-
-                                if (com.klinker.android.send_message.Transaction.settings != null) {
-                                    useSystem = com.klinker.android.send_message.Transaction.settings
-                                            .getUseSystemSending();
-                                } else {
-                                    useSystem = PreferenceManager.getDefaultSharedPreferences(mContext)
-                                            .getBoolean("system_mms_sending", useSystem);
-                                }
-
-                                if (useSystem) {
-                                    DownloadManager.getInstance().downloadMultimediaMessage(mContext, location, uri, true, subId);
-                                } else {
-                                    Timber.v("receiving with lollipop method");
-                                    MmsRequestManager requestManager = new MmsRequestManager(mContext);
-                                    DownloadRequest request = new DownloadRequest(requestManager,
-                                            Utils.getDefaultSubscriptionId(),
-                                            location, uri, null, null,
-                                            null, mContext);
-                                    MmsNetworkManager manager = new MmsNetworkManager(mContext, Utils.getDefaultSubscriptionId());
-                                    request.execute(mContext, manager);
-                                }
-                            } else {
-                                if (NotificationTransaction.allowAutoDownload(mContext)) {
-                                    // Start service to finish the notification transaction.
-                                    Intent svc = new Intent(mContext, TransactionService.class);
-                                    svc.putExtra(TransactionBundle.URI, uri.toString());
-                                    svc.putExtra(TransactionBundle.TRANSACTION_TYPE,
-                                            Transaction.NOTIFICATION_TRANSACTION);
-                                    svc.putExtra(TransactionBundle.LOLLIPOP_RECEIVING,
-                                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                                    mContext.startService(svc);
-                                } else {
-                                    Intent notificationBroadcast = new Intent(com.klinker.android.send_message.Transaction.NOTIFY_OF_MMS);
-                                    notificationBroadcast.putExtra("receive_through_stock", true);
-                                    BroadcastUtils.sendExplicitBroadcast(
-                                            mContext,
-                                            notificationBroadcast,
-                                            com.klinker.android.send_message.Transaction.NOTIFY_OF_MMS);
-                                }
-                            }
+                            // QUIK's minSdk is 23. The platform MMS service owns carrier network
+                            // selection, APN access, and HTTP/TLS policy for every supported device.
+                            DownloadManager.getInstance().downloadMultimediaMessage(
+                                    mContext, location, uri, true, subId);
                         } else if (LOCAL_LOGV) {
                             Timber.v("Skip downloading duplicate message: "
                                     + new String(nInd.getContentLocation()));

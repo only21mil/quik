@@ -19,13 +19,12 @@
 package dev.octoshrimpy.quik.common.util
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
-import dev.octoshrimpy.quik.util.FileUtils
 import dev.octoshrimpy.quik.util.Preferences
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.io.FileNotFoundException
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -43,13 +42,18 @@ class FileLoggingTree @Inject constructor(
         val TAG: String? = FileLoggingTree::class.simpleName
     }
 
-    private var logFileUri: Uri? = null
+    private var logFile: File? = null
 
+    @Suppress("UNUSED_PARAMETER")
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (!prefs.logging.get()) return
 
         Schedulers.io().scheduleDirect {
             synchronized(this) {    // one thread can access file at a time
+                val eventType = t?.javaClass?.simpleName
+                    ?.filter(Char::isLetterOrDigit)
+                    ?.take(64)
+                    ?: "event"
                 val logItem =
                     "${    // date/time
                         SimpleDateFormat(
@@ -65,16 +69,11 @@ class FileLoggingTree @Inject constructor(
                             Log.ERROR -> "E"
                             else -> "?"
                         }
-                    }/${    // tag
-                        tag
-                    }: ${    // message
-                        message
-                    }${    // stack trace
-                        Log.getStackTraceString(t)
-                    }\n"
+                    }/Quik: $eventType\n"
 
-                // if uri of log file not yet determined, get one now
-                if (logFileUri == null) {
+                // Keep diagnostic logs in app-private storage. A future support flow can export
+                // them only after an explicit user action.
+                if (logFile == null) {
                     val filename = "Quik-log-${
                         SimpleDateFormat(
                             "yyyy-MM-dd",
@@ -82,24 +81,22 @@ class FileLoggingTree @Inject constructor(
                         ).format(System.currentTimeMillis())
                     }.log"
 
-                    val (uri, e) = FileUtils.create(
-                        FileUtils.Location.Downloads,
-                        context,
-                        filename,
-                        "text/plain"
-                    )
-                    if (e is Exception)
-                        Log.e(TAG, "Error opening log file", e)
-                    else
-                        logFileUri = uri
+                    val logDirectory = File(context.noBackupFilesDir, "logs")
+                    if (logDirectory.exists() || logDirectory.mkdirs()) {
+                        logFile = File(logDirectory, filename)
+                    } else {
+                        Log.e(TAG, "Error creating private log directory")
+                    }
                 }
 
-                logFileUri?.let {
-                    val e = FileUtils.append(context, it, logItem.toByteArray())
-                    if (e is FileNotFoundException)
-                        Log.e(TAG, "Log file went away. Lost log file item: $logItem", e)
-                    else if (e is Exception)
-                        Log.e(TAG, "Error while logging into file", e)
+                logFile?.let { file ->
+                    try {
+                        FileOutputStream(file, true).use { output ->
+                            output.write(logItem.toByteArray(Charsets.UTF_8))
+                        }
+                    } catch (error: Exception) {
+                        Log.e(TAG, "Error writing private log file", error)
+                    }
                 }
             }
         }

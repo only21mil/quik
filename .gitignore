@@ -51,11 +51,11 @@ freeline/
 freeline_project_description.json
 
 # secrets / keystore files
-my-release-key.keystore
-my-release-key.keystore.base64
-.secrets
-android-keystore/keystore.b64
-keystore.p12
-config.yml
+*.keystore
+*.keystore.base64
 *.jks
-
+*.p12
+*.pfx
+*.b64
+.secrets
+config.yml

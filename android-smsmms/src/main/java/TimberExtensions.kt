@@ -1,4 +1,6 @@
 package com.klinker.android.timberworkarounds
 
-fun Timber_isLoggable(tag: String, level: Int): Boolean = true
+import timber.log.Timber
 
+@Suppress("UNUSED_PARAMETER", "FunctionName")
+fun Timber_isLoggable(tag: String, level: Int): Boolean = Timber.treeCount > 0

@@ -33,6 +33,7 @@ data class MainState(
     val defaultSms: Boolean = true,
     val smsPermission: Boolean = true,
     val contactPermission: Boolean = true,
+    val phonePermission: Boolean = true,
     val notificationPermission: Boolean = true,
     val scheduledConversationIds: Set<Long> = emptySet()
 )

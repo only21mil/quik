@@ -1,0 +1,86 @@
+[
+  {
+    "name": "call-phone-permission-restored",
+    "operation": "add-permission",
+    "value": "android.permission.CALL_PHONE",
+    "expectedDiagnostic": "uses-permission mismatch"
+  },
+  {
+    "name": "send-sms-permission-duplicated",
+    "operation": "add-permission",
+    "value": "android.permission.SEND_SMS",
+    "expectedDiagnostic": "uses-permission mismatch"
+  },
+  {
+    "name": "query-package-duplicated",
+    "operation": "add-query-package",
+    "value": "com.cuiet.blockCalls",
+    "expectedDiagnostic": "query packages"
+  },
+  {
+    "name": "compose-call-filter-added",
+    "operation": "add-intent-filter",
+    "kind": "activity",
+    "component": "dev.octoshrimpy.quik.feature.compose.ComposeActivity",
+    "action": "android.intent.action.CALL",
+    "expectedDiagnostic": "intent filters mismatch"
+  },
+  {
+    "name": "sms-receiver-boot-filter-added",
+    "operation": "add-intent-filter",
+    "kind": "receiver",
+    "component": "dev.octoshrimpy.quik.receiver.SmsReceivedReceiver",
+    "action": "android.intent.action.BOOT_COMPLETED",
+    "expectedDiagnostic": "intent filters mismatch"
+  },
+  {
+    "name": "compose-not-exported",
+    "operation": "set-component-attribute",
+    "kind": "activity",
+    "component": "dev.octoshrimpy.quik.feature.compose.ComposeActivity",
+    "attribute": "exported",
+    "value": "false",
+    "expectedDiagnostic": "exported expected 'true'"
+  },
+  {
+    "name": "sms-deliver-guard-removed",
+    "operation": "remove-component-attribute",
+    "kind": "receiver",
+    "component": "dev.octoshrimpy.quik.receiver.SmsReceivedReceiver",
+    "attribute": "permission",
+    "expectedDiagnostic": "permission expected 'android.permission.BROADCAST_SMS'"
+  },
+  {
+    "name": "mms-wap-mime-removed",
+    "operation": "remove-filter-child",
+    "kind": "receiver",
+    "component": "dev.octoshrimpy.quik.receiver.MmsWapPushReceiver",
+    "filterAction": "android.provider.Telephony.WAP_PUSH_DELIVER",
+    "child": "data",
+    "attribute": "mimeType",
+    "value": "application/vnd.wap.mms-message",
+    "expectedDiagnostic": "intent filters mismatch"
+  },
+  {
+    "name": "respond-via-message-scheme-removed",
+    "operation": "remove-filter-child",
+    "kind": "service",
+    "component": "dev.octoshrimpy.quik.service.HeadlessSmsSendService",
+    "filterAction": "android.intent.action.RESPOND_VIA_MESSAGE",
+    "child": "data",
+    "attribute": "scheme",
+    "value": "mmsto",
+    "expectedDiagnostic": "intent filters mismatch"
+  },
+  {
+    "name": "sendto-action-removed",
+    "operation": "remove-filter-child",
+    "kind": "activity",
+    "component": "dev.octoshrimpy.quik.feature.compose.ComposeActivity",
+    "filterAction": "android.intent.action.SENDTO",
+    "child": "action",
+    "attribute": "name",
+    "value": "android.intent.action.SENDTO",
+    "expectedDiagnostic": "intent filters mismatch"
+  }
+]

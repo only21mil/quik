@@ -23,14 +23,23 @@ import android.content.Context
 import android.content.Intent
 import dagger.android.AndroidInjection
 import dev.octoshrimpy.quik.interactor.UpdateScheduledMessageAlarms
+import dev.octoshrimpy.quik.manager.PermissionManager
 import javax.inject.Inject
 
 class BootReceiver : BroadcastReceiver() {
 
     @Inject lateinit var updateScheduledMessageAlarms: UpdateScheduledMessageAlarms
+    @Inject lateinit var permissionManager: PermissionManager
 
     override fun onReceive(context: Context, intent: Intent?) {
+        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+
         AndroidInjection.inject(this, context)
+        if (!ReceiverRequestValidator.isPrivilegedSystemRequest(
+                intent.action,
+                Intent.ACTION_BOOT_COMPLETED,
+                permissionManager.isDefaultSms()
+            )) return
 
         val result = goAsync()
         updateScheduledMessageAlarms.execute(Unit) { result.finish() }

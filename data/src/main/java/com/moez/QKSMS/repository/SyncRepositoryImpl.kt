@@ -44,6 +44,7 @@ import dev.octoshrimpy.quik.model.Message
 import dev.octoshrimpy.quik.model.MmsPart
 import dev.octoshrimpy.quik.model.PhoneNumber
 import dev.octoshrimpy.quik.model.Recipient
+import dev.octoshrimpy.quik.model.ReactionAttempt
 import dev.octoshrimpy.quik.model.SyncLog
 import dev.octoshrimpy.quik.interactor.DeduplicateMessages
 import dev.octoshrimpy.quik.util.PhoneNumberUtils
@@ -167,6 +168,10 @@ class SyncRepositoryImpl @Inject constructor(
                     }
                 }
 
+                // Message IDs are regenerated during full sync. Repair attempts only through
+                // stable provider identities before previews or reaction badges are rebuilt.
+                ReactionAttemptReconciler.reconcileAll(realm)
+
                 // Migrate blocked conversations from 2.7.3
                 oldBlockedSenders.get()
                     .map { threadIdString -> threadIdString.toLong() }
@@ -199,6 +204,7 @@ class SyncRepositoryImpl @Inject constructor(
                                 lastMessage = realm.where(Message::class.java)
                                     .sort("date", Sort.DESCENDING)
                                     .equalTo("threadId", id)
+                                    .equalTo("isEmojiReaction", false)
                                     .findFirst()
                             }
                             realm.insertOrUpdate(conversation)
@@ -242,6 +248,9 @@ class SyncRepositoryImpl @Inject constructor(
                         syncProgress.onNext(progress)
                     })
 
+                // Reaction classification changes message visibility, so calculate previews afterwards.
+                realm.refreshConversationPreviews()
+
                 if (rxPrefs.getBoolean("autoDeduplicateMessages").get()) {
                     DeduplicateMessages(messageRepo.get())
                         .buildObservable(Unit)
@@ -255,7 +264,7 @@ class SyncRepositoryImpl @Inject constructor(
                                     Timber.i("Deleted duplicate messages")
                                 }
                                 is MessageRepository.DeduplicationResult.Failure -> {
-                                    Timber.e(result.error, "Deduplication failed")
+                                    Timber.e("Deduplication failed")
                                 }
                             }
                         }
@@ -267,9 +276,9 @@ class SyncRepositoryImpl @Inject constructor(
                 oldBlockedSenders.delete()
                 syncProgress.onNext(SyncRepository.SyncProgress.Idle)
             },
-                { error ->
+                { _ ->
                     handlerThread.quitSafely()
-                    Timber.e(error, "syncMessages Failed")
+                    Timber.e("syncMessages failed")
                     syncProgress.onNext(SyncRepository.SyncProgress.Idle)
                 })
         }
@@ -328,26 +337,66 @@ class SyncRepositoryImpl @Inject constructor(
                 conversationRepo.getOrCreateConversation(threadId)
                 insertOrUpdate()
 
-                val text = getText(false)
-                val parsedReaction = reactions.parseEmojiReaction(text)
-                if (parsedReaction != null) {
-                    Realm.getDefaultInstance().use { realm ->
-                        val targetMessage = reactions.findTargetMessage(
-                            threadId,
-                            parsedReaction.originalMessage,
-                            realm
-                        )
-                        realm.executeTransaction {
-                            reactions.saveEmojiReaction(
-                                this,
-                                parsedReaction,
-                                targetMessage,
-                                realm,
-                            )
-                        }
+                Realm.getDefaultInstance().use realmUse@ { realm ->
+                    realm.refresh()
+                    val managedMessage = realm.where(Message::class.java)
+                        .equalTo("type", type)
+                        .equalTo("contentId", contentId)
+                        .findFirst()
+                        ?: return@realmUse
+                    realm.executeTransaction {
+                        ReactionAttemptReconciler.reconcileCarrier(realm, managedMessage)
+                        reactions.processEmojiReaction(managedMessage, realm)
+                        realm.refreshConversationPreviews(listOf(threadId))
                     }
                 }
             }
+        }
+    }
+
+    override fun reconcileReactionAttempts() {
+        val attempts = Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            realm.executeTransaction {
+                ReactionAttemptReconciler.reconcileAll(realm)
+            }
+            realm.copyFromRealm(realm.where(ReactionAttempt::class.java).findAll())
+        }
+
+        attempts.forEach { attempt ->
+            val identity = attempt.transportKey
+                ?.let(ReactionTransportPolicy.ProviderIdentity::decode)
+            if (identity == null) {
+                if (
+                    attempt.state == ReactionAttempt.State.HANDOFF.name ||
+                    attempt.state == ReactionAttempt.State.SUBMITTED.name
+                ) {
+                    markReactionAttemptFailed(attempt.id)
+                }
+                return@forEach
+            }
+
+            try {
+                syncMessage(identity.toUri())
+            } catch (_: Exception) {
+                Timber.w("could not inspect reaction provider row at startup")
+                return@forEach
+            }
+            // A missing provider row is not delivery evidence. Keep durable callback correlation;
+            // a later live/full sync or the Android sent callback may still resolve the carrier.
+        }
+    }
+
+    private fun markReactionAttemptFailed(attemptId: String) {
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            realm.where(ReactionAttempt::class.java)
+                .equalTo("id", attemptId)
+                .findFirst()
+                ?.takeUnless { attempt -> attempt.state == ReactionAttempt.State.SENT.name }
+                ?.let { attempt ->
+                    realm.executeTransaction { attempt.state = ReactionAttempt.State.FAILED.name }
+                }
         }
     }
 

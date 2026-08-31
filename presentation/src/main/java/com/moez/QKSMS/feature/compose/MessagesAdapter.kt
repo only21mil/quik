@@ -136,6 +136,29 @@ class MessagesAdapter @Inject constructor(
 
     private val audioState = AudioState()
 
+    init {
+        setHasStableIds(true)
+    }
+
+    fun reactionTargetId(isDefaultSms: Boolean, hasSendSms: Boolean): Long? {
+        val visibleMessages = (0 until itemCount).mapNotNull(::getItem).map { message ->
+            ReactionMessageCandidate(
+                id = message.id,
+                isReaction = message.isEmojiReaction,
+                isFailed = message.isFailedMessage(),
+                hasText = message.hasNonWhitespaceText(),
+                hasNonTextParts = message.parts.any { part -> !part.isSmil() && !part.isText() },
+            )
+        }
+
+        return ReactionUiPolicy.targetId(
+            selectedIds = selectedIds(),
+            visibleMessages = visibleMessages,
+            isDefaultSms = isDefaultSms,
+            hasSendSms = hasSendSms,
+        )
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QkViewHolder {
         // Use the parent's context to inflate the layout, otherwise link clicks will crash the app
         val inflater = LayoutInflater.from(parent.context)

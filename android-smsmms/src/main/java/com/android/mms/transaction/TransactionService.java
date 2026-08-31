@@ -46,9 +46,6 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.android.mms.logs.LogTag;
-import com.android.mms.service_alt.DownloadRequest;
-import com.android.mms.service_alt.MmsNetworkManager;
-import com.android.mms.service_alt.MmsRequestManager;
 import com.android.mms.util.DownloadManager;
 import com.android.mms.util.RateController;
 import com.google.android.mms.MmsException;
@@ -210,33 +207,6 @@ public class TransactionService extends Service implements Observer {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (intent != null) {
-//            if (intent.getBooleanExtra(TransactionBundle.LOLLIPOP_RECEIVING, false)) {
-//                lollipopReceiving = true;
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Timber.v("starting receiving with new lollipop method");
-//                        try { Thread.sleep(60000); } catch (Exception e) { }
-//                        Timber.v("done sleeping, lets try and grab the message");
-//                        Uri contentUri = Uri.parse(intent.getStringExtra(TransactionBundle.URI));
-//                        String downloadLocation = null;
-//                        Cursor locationQuery = getContentResolver().query(contentUri, new String[]{Telephony.Mms.CONTENT_LOCATION, Telephony.Mms._ID}, null, null, "date desc");
-//
-//                        if (locationQuery != null && locationQuery.moveToFirst()) {
-//                            Timber.v("grabbing content location url");
-//                            downloadLocation = locationQuery.getString(locationQuery.getColumnIndex(Telephony.Mms.CONTENT_LOCATION));
-//                        }
-//
-//                        Timber.v("creating request with url: " + downloadLocation);
-//                        DownloadRequest request = new DownloadRequest(downloadLocation, contentUri, null, null, null);
-//                        MmsNetworkManager manager = new MmsNetworkManager(TransactionService.this);
-//                        request.execute(TransactionService.this, manager);
-//                        stopSelf();
-//                    }
-//                }).start();
-//                return START_NOT_STICKY;
-//            }
-
             if (mServiceHandler == null) {
                 initServiceHandler();
             }
@@ -319,46 +289,23 @@ public class TransactionService extends Service implements Observer {
                         int transactionType = getTransactionType(msgType);
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            boolean useSystem = true;
                             int subId = Settings.DEFAULT_SUBSCRIPTION_ID;
                             if (com.klinker.android.send_message.Transaction.settings != null) {
-                                useSystem = com.klinker.android.send_message.Transaction.settings
-                                        .getUseSystemSending();
                                 subId = com.klinker.android.send_message.Transaction.settings.getSubscriptionId();
-                            } else {
-                                useSystem = PreferenceManager.getDefaultSharedPreferences(this)
-                                        .getBoolean("system_mms_sending", useSystem);
                             }
 
-                            if (useSystem) {
-                                try {
-                                    Uri uri = ContentUris.withAppendedId(Mms.CONTENT_URI,
-                                            cursor.getLong(columnIndexOfMsgId));
-                                    com.android.mms.transaction.DownloadManager.getInstance().
-                                            downloadMultimediaMessage(this, PushReceiver.getContentLocation(this, uri), uri, false, subId);
+                            try {
+                                Uri uri = ContentUris.withAppendedId(Mms.CONTENT_URI,
+                                        cursor.getLong(columnIndexOfMsgId));
+                                com.android.mms.transaction.DownloadManager.getInstance().
+                                        downloadMultimediaMessage(this,
+                                                PushReceiver.getContentLocation(this, uri),
+                                                uri, false, subId);
 
-                                    // can't handle many messages at once.
-                                    break;
-                                } catch (MmsException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                try {
-                                    Uri uri = ContentUris.withAppendedId(Mms.CONTENT_URI,
-                                            cursor.getLong(columnIndexOfMsgId));
-                                    MmsRequestManager requestManager = new MmsRequestManager(this);
-                                    DownloadRequest request = new DownloadRequest(requestManager,
-                                            Utils.getDefaultSubscriptionId(),
-                                            PushReceiver.getContentLocation(this, uri), uri, null, null,
-                                            null, this);
-                                    MmsNetworkManager manager = new MmsNetworkManager(this, Utils.getDefaultSubscriptionId());
-                                    request.execute(this, manager);
-
-                                    // can't handle many messages at once.
-                                    break;
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                // can't handle many messages at once.
+                                break;
+                            } catch (MmsException e) {
+                                e.printStackTrace();
                             }
                             continue;
                         }

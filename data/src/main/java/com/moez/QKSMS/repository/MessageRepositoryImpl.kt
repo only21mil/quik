@@ -19,6 +19,7 @@
 package dev.octoshrimpy.quik.repository
 
 import com.moez.QKSMS.manager.QkTransaction
+import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.ContentUris
@@ -35,8 +36,10 @@ import android.provider.Telephony.Sms
 import android.telephony.SmsManager
 import android.webkit.MimeTypeMap
 import androidx.core.content.contentValuesOf
+import androidx.core.net.toUri
 import com.google.android.mms.ContentType
 import com.klinker.android.send_message.SmsManagerFactory
+import com.moez.QKSMS.repository.ReactionWireCodec
 import dev.octoshrimpy.quik.common.util.extensions.now
 import dev.octoshrimpy.quik.compat.TelephonyCompat
 import dev.octoshrimpy.quik.extensions.anyOf
@@ -47,6 +50,7 @@ import dev.octoshrimpy.quik.extensions.map
 import dev.octoshrimpy.quik.extensions.resourceExists
 import dev.octoshrimpy.quik.manager.ActiveConversationManager
 import dev.octoshrimpy.quik.manager.KeyManager
+import dev.octoshrimpy.quik.manager.ReactionRuntimeAuthority
 import dev.octoshrimpy.quik.mapper.CursorToMessage
 import dev.octoshrimpy.quik.mapper.CursorToPart
 import dev.octoshrimpy.quik.model.Attachment
@@ -55,6 +59,7 @@ import dev.octoshrimpy.quik.model.Message
 import dev.octoshrimpy.quik.model.Message.Companion.TYPE_MMS
 import dev.octoshrimpy.quik.model.Message.Companion.TYPE_SMS
 import dev.octoshrimpy.quik.model.MmsPart
+import dev.octoshrimpy.quik.model.ReactionAttempt
 import dev.octoshrimpy.quik.receiver.MessageDeliveredReceiver
 import dev.octoshrimpy.quik.receiver.MessageSentReceiver
 import dev.octoshrimpy.quik.receiver.SendDelayedMessageReceiver
@@ -64,6 +69,7 @@ import dev.octoshrimpy.quik.util.PhoneNumberUtils
 import dev.octoshrimpy.quik.util.Preferences
 import dev.octoshrimpy.quik.util.sha256
 import dev.octoshrimpy.quik.util.tryOrNull
+import dev.octoshrimpy.quik.interactor.SendReaction
 import io.reactivex.Flowable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
@@ -73,6 +79,8 @@ import io.realm.RealmList
 import io.realm.RealmResults
 import io.realm.Sort
 import timber.log.Timber
+import java.security.MessageDigest
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -89,6 +97,10 @@ open class MessageRepositoryImpl @Inject constructor(
     private val reactions: EmojiReactionRepository,
     private val cursorToMessage: CursorToMessage,
     private val cursorToPart: CursorToPart,
+    private val smsReactionRouteResolver: ProviderBackedOneToOneSmsReactionRouteResolver,
+    private val oneToOneMmsReactionRouteResolver: ProviderBackedOneToOneMmsReactionRouteResolver,
+    private val groupReactionRouteResolver: ProviderBackedGroupMmsReactionRouteResolver,
+    private val reactionRuntimeAuthority: ReactionRuntimeAuthority,
 ) : MessageRepository {
 
     override val deduplicationProgress: Subject<MessageRepository.DeduplicationProgress> =
@@ -229,7 +241,7 @@ open class MessageRepositoryImpl @Inject constructor(
         }
 
         val uri = context.contentResolver.insert(contentUri, values)
-        Timber.v("Saving $fileName (${part.type}) to $uri")
+        Timber.v("Saving attachment to user-selected media storage")
 
         uri?.let {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -237,7 +249,7 @@ open class MessageRepositoryImpl @Inject constructor(
                     inputStream.copyTo(outputStream, 1024)
                 }
             }
-            Timber.v("Saved $fileName (${part.type}) to $uri")
+            Timber.v("Saved attachment to user-selected media storage")
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 context.contentResolver.update(
@@ -246,7 +258,7 @@ open class MessageRepositoryImpl @Inject constructor(
                     null,
                     null
                 )
-                Timber.v("Marked $uri as not pending")
+                Timber.v("Marked saved attachment as complete")
             }
         }
 
@@ -608,11 +620,11 @@ open class MessageRepositoryImpl @Inject constructor(
 
         val message = syncProviderMessage(messageUri, group)
         if (message == null) {
-            Timber.v("sync message failed for uri $messageUri")
+            Timber.v("sync failed for staged provider message")
             return listOf()
         }
 
-        Timber.v("created message id ${message.id} from uri $messageUri")
+        Timber.v("created local message from staged provider message")
 
         if (delayMs > 0) {  // if delaying
             val sendTime = (now() + delayMs)
@@ -630,7 +642,7 @@ open class MessageRepositoryImpl @Inject constructor(
                     AlarmManager.RTC_WAKEUP, sendTime, getIntentForDelayedSms(message.id)
                 )
 
-            Timber.v("set ${delayMs}ms delay for message id ${message.id}")
+            Timber.v("scheduled delayed message")
 
             return listOf(message)
         }
@@ -653,11 +665,11 @@ open class MessageRepositoryImpl @Inject constructor(
                 explodedMessages.forEach { explodedMessageUri ->
                     val childMessage = syncProviderMessage(explodedMessageUri, message.sendAsGroup)
                     if (childMessage != null) {
-                        Timber.v("created message id ${childMessage.id} from uri $explodedMessageUri")
+                        Timber.v("created local message from split provider message")
                         retVal.addAll(sendMessage(childMessage))
                     }
                     else
-                        Timber.e("sync failed for uri $explodedMessageUri")
+                        Timber.e("sync failed for split provider message")
                 }
 
                 // mark original message as sent
@@ -677,7 +689,7 @@ open class MessageRepositoryImpl @Inject constructor(
 
                 // use values from os provider to resend the message, except subId
                 if (!QkTransaction.sendMessage(context, message.getUri(), sentIntent, deliveryIntent))
-                    Timber.e("message id ${message.id} not sent by smsmms")
+                    Timber.e("message was not submitted by sms transport")
             }
 
             retVal.add(message)
@@ -690,6 +702,714 @@ open class MessageRepositoryImpl @Inject constructor(
         getMessage(messageId)
             ?.let { message -> sendMessage(message) }
             ?: listOf()
+
+    override fun sendReaction(request: SendReactionRequest): SendReactionResult {
+        if (
+            request.targetMessageId <= 0L || request.expectedThreadId <= 0L ||
+            request.expectedSubscriptionId < 0 || !request.region.trim().matches(Regex("[A-Za-z]{2}"))
+        ) {
+            return SendReactionResult.Rejected(SendReactionResult.Rejection.INVALID_REQUEST)
+        }
+        if (!reactionRuntimeAuthority.canSendReaction()) {
+            return SendReactionResult.Rejected(
+                SendReactionResult.Rejection.RUNTIME_AUTHORITY_REVOKED
+            )
+        }
+        val reservation = request.reservation
+            ?: return SendReactionResult.Rejected(SendReactionResult.Rejection.INVALID_REQUEST)
+
+        val snapshot = loadReactionSnapshot(request)
+            ?: return SendReactionResult.Rejected(SendReactionResult.Rejection.TARGET_CHANGED)
+        val targetIdentity = ReactionTransportPolicy.ProviderIdentity.from(snapshot.target)
+            ?: return SendReactionResult.Rejected(SendReactionResult.Rejection.TARGET_CHANGED)
+        val route = when (val result = resolveReactionRoute(snapshot.target, request)) {
+            is ReactionRouteResolution.Resolved -> result.route
+            is ReactionRouteResolution.Rejected -> return SendReactionResult.Rejected(result.reason)
+        }
+        val encoded = ReactionWireCodec.encode(
+            operation = when (request.operation) {
+                SendReaction.ReactionOperation.ADD -> ReactionWireCodec.Operation.ADD
+                SendReaction.ReactionOperation.REMOVE -> ReactionWireCodec.Operation.REMOVE
+            },
+            reaction = ReactionWireCodec.ClassicReaction.valueOf(request.reaction.name),
+            target = route.targetCarrier,
+        ) as? ReactionWireCodec.EncodeResult.Encoded
+            ?: return SendReactionResult.Rejected(SendReactionResult.Rejection.CODEC_REJECTED)
+
+        val stagingType = route.carrierType
+        val stagedAt = now().let { timestamp ->
+            if (stagingType == TYPE_MMS) timestamp / 1000L * 1000L else timestamp
+        }
+        val stagingIdentity = ReactionTransportPolicy.StagingIdentity(
+            type = stagingType,
+            stagedAt = stagedAt,
+            threadId = request.expectedThreadId,
+            subId = request.expectedSubscriptionId,
+        )
+        if (!persistReactionProof(
+                reservation = reservation,
+                targetIdentity = targetIdentity,
+                route = route,
+                stagingIdentity = stagingIdentity,
+                body = encoded.body,
+            )
+        ) {
+            return SendReactionResult.Rejected(SendReactionResult.Rejection.REALM_SYNC_FAILED)
+        }
+        var stagingRejection = SendReactionResult.Rejection.PROVIDER_STAGING_FAILED
+        var submissionRejection = SendReactionResult.Rejection.PLATFORM_SUBMISSION_FAILED
+        val outcome = ReactionSubmissionCoordinator().run(
+            ReactionSubmissionCoordinator.Hooks(
+                prepare = {
+                    check(verifyPersistedReactionProof(reservation.attemptId, route, encoded.body))
+                },
+                stage = {
+                    if (!reactionRuntimeAuthority.canSendReaction()) {
+                        stagingRejection = SendReactionResult.Rejection.RUNTIME_AUTHORITY_REVOKED
+                        null
+                    } else if (
+                        !verifyPersistedReactionProof(reservation.attemptId, route, encoded.body) ||
+                        !reverifyReactionRoute(route)
+                    ) {
+                        stagingRejection = SendReactionResult.Rejection.ROUTE_UNAVAILABLE
+                        null
+                    } else {
+                        val staged = when (route) {
+                            is ReactionRoute.Sms -> QkTransaction.stageReactionSms(
+                                context = context,
+                                subscriptionId = request.expectedSubscriptionId,
+                                threadId = request.expectedThreadId,
+                                address = route.proof.remoteRecipientE164,
+                                body = encoded.body,
+                                stagedAt = stagedAt,
+                            )
+                            is ReactionRoute.OneToOneMms -> QkTransaction.stageReactionSms(
+                                context = context,
+                                subscriptionId = request.expectedSubscriptionId,
+                                threadId = request.expectedThreadId,
+                                address = route.proof.remoteRecipientE164,
+                                body = encoded.body,
+                                stagedAt = stagedAt,
+                            )
+                            is ReactionRoute.GroupMms -> QkTransaction.stageReactionMms(
+                                context = context,
+                                subscriptionId = request.expectedSubscriptionId,
+                                addresses = route.proof.remoteParticipantKeys,
+                                body = encoded.body,
+                                stagedAt = stagedAt,
+                            )
+                        }
+                        when (staged) {
+                            is QkTransaction.ReactionStageResult.Staged -> staged.uri.toString()
+                            QkTransaction.ReactionStageResult.NotOneSmsSegment -> {
+                                stagingRejection = SendReactionResult.Rejection.NOT_ONE_SMS_SEGMENT
+                                null
+                            }
+                            QkTransaction.ReactionStageResult.Failed -> null
+                        }
+                    }
+                },
+                syncHiddenAndMarkHandoff = { providerUri ->
+                    syncHiddenReactionCarrier(
+                        uri = providerUri.toUri(),
+                        attemptId = reservation.attemptId,
+                        expectedThreadId = request.expectedThreadId,
+                        expectedSubscriptionId = request.expectedSubscriptionId,
+                        expectedBody = encoded.body,
+                        sendAsGroup = route is ReactionRoute.GroupMms,
+                    )
+                },
+                submit = { providerUri, transportKey ->
+                    when {
+                        !reactionRuntimeAuthority.canSendReaction() -> {
+                            submissionRejection =
+                                SendReactionResult.Rejection.RUNTIME_AUTHORITY_REVOKED
+                            false
+                        }
+                        !reverifyReactionRoute(route) ||
+                            !verifyPersistedReactionProof(
+                                reservation.attemptId,
+                                route,
+                                encoded.body,
+                                transportKey,
+                            ) -> {
+                            submissionRejection = SendReactionResult.Rejection.ROUTE_UNAVAILABLE
+                            false
+                        }
+                        else -> {
+                            val sentIntent = Intent(context, MessageSentReceiver::class.java)
+                                .putExtra(
+                                    MessageSentReceiver.EXTRA_REACTION_ATTEMPT_ID,
+                                    reservation.attemptId,
+                                )
+                                .putExtra(
+                                    MessageSentReceiver.EXTRA_REACTION_TRANSPORT_KEY,
+                                    transportKey,
+                                )
+                            QkTransaction.submitReaction(context, providerUri.toUri(), sentIntent)
+                        }
+                    }
+                },
+                markSubmitted = { transportKey ->
+                    markReactionSubmitted(reservation.attemptId, transportKey)
+                },
+                discard = { providerUri ->
+                    QkTransaction.discardStagedReaction(context, providerUri.toUri())
+                },
+                markFailed = { transportKey ->
+                    failReactionAttempt(reservation.attemptId, transportKey)
+                },
+            )
+        )
+        return when (outcome) {
+            ReactionSubmissionCoordinator.Outcome.Submitted ->
+                SendReactionResult.Submitted(reservation.attemptId)
+            is ReactionSubmissionCoordinator.Outcome.Failed -> SendReactionResult.Rejected(
+                when (outcome.failure) {
+                    ReactionSubmissionCoordinator.Failure.PREPARATION ->
+                        SendReactionResult.Rejection.REALM_SYNC_FAILED
+                    ReactionSubmissionCoordinator.Failure.STAGING -> stagingRejection
+                    ReactionSubmissionCoordinator.Failure.SYNC ->
+                        SendReactionResult.Rejection.REALM_SYNC_FAILED
+                    ReactionSubmissionCoordinator.Failure.SUBMISSION ->
+                        submissionRejection
+                }
+            )
+        }
+    }
+
+    override fun completeReaction(
+        attemptId: String,
+        transportKey: String,
+        resultCode: Int,
+    ): ReactionCallbackResult = Realm.getDefaultInstance().use { realm ->
+        realm.refresh()
+        val attempt = realm.where(ReactionAttempt::class.java)
+            .equalTo("id", attemptId)
+            .findFirst()
+            ?: return@use ReactionCallbackResult.NOT_FOUND
+        if (
+            attempt.state == ReactionAttempt.State.SENT.name ||
+            attempt.state == ReactionAttempt.State.FAILED.name
+        ) {
+            return@use ReactionCallbackResult.ALREADY_TERMINAL
+        }
+        if (!reactionRuntimeAuthority.canSendReaction()) {
+            return@use ReactionCallbackResult.RUNTIME_AUTHORITY_REVOKED
+        }
+        val targetIdentity = ReactionTransportPolicy.ProviderIdentity.decode(attempt.targetKey)
+            ?: return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        val receivedIdentity = ReactionTransportPolicy.ProviderIdentity.decode(transportKey)
+            ?: return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        if (attempt.transportKey != transportKey) {
+            var bound = false
+            realm.executeTransaction {
+                bound = ReactionAttemptReconciler.bindCallbackCarrier(
+                    realm,
+                    attempt,
+                    receivedIdentity,
+                )
+            }
+            if (!bound) return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        }
+        if (
+            attempt.state !in setOf(
+                ReactionAttempt.State.HANDOFF.name,
+                ReactionAttempt.State.SUBMITTED.name,
+                ReactionAttempt.State.HANDOFF_FAILED.name,
+                ReactionAttempt.State.QUARANTINED.name,
+            ) ||
+            attempt.transportKey != transportKey
+        ) {
+            return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        }
+        val resolved = ReactionAttemptReconciler.resolve(realm, attempt)
+            ?: return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        val carrier = resolved.carrier
+        val target = resolved.target
+        if (
+            !reverifyPersistedReactionRoute(attempt, target) ||
+            sha256ReactionBody(carrier.getText(false)) != attempt.bodyFingerprint
+        ) {
+            return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        }
+        val settlement = ReactionTransportPolicy.settleCallback(
+            ReactionTransportPolicy.CallbackFacts(
+                currentState = attempt.state,
+                expectedTransportKey = attempt.transportKey,
+                receivedTransportKey = transportKey,
+                expectedIdentity = targetIdentity,
+                carrierThreadId = carrier.threadId,
+                carrierSubscriptionId = carrier.subId,
+                targetThreadId = target.threadId,
+                successful = resultCode == Activity.RESULT_OK,
+            )
+        )
+        when (settlement) {
+            ReactionTransportPolicy.CallbackSettlement.AlreadyTerminal ->
+                return@use ReactionCallbackResult.ALREADY_TERMINAL
+            ReactionTransportPolicy.CallbackSettlement.CorrelationMismatch ->
+                return@use ReactionCallbackResult.CORRELATION_MISMATCH
+            ReactionTransportPolicy.CallbackSettlement.CommitFailed -> {
+                markFailed(carrier.id, resultCode)
+                realm.executeTransaction { attempt.state = ReactionAttempt.State.FAILED.name }
+                return@use ReactionCallbackResult.FAILED
+            }
+            is ReactionTransportPolicy.CallbackSettlement.CommitSent -> {
+                if (settlement.target != targetIdentity) {
+                    return@use ReactionCallbackResult.CORRELATION_MISMATCH
+                }
+            }
+        }
+        val decoded = ReactionWireCodec.decode(
+            carrier.toReactionCarrier()
+        ) as? ReactionWireCodec.DecodeResult.Decoded
+            ?: return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        if (
+            !carrier.isEmojiReaction || carrier.threadId != attempt.threadId ||
+            target.threadId != attempt.threadId || carrier.getText(false) != attempt.body ||
+            decoded.reaction.targetBody != target.getText(false)
+        ) {
+            return@use ReactionCallbackResult.CORRELATION_MISMATCH
+        }
+
+        markSent(carrier.id)
+        realm.refresh()
+        realm.executeTransaction {
+            reactions.saveEmojiReaction(
+                reactionMessage = carrier,
+                parsedReaction = ParsedEmojiReaction(
+                    emoji = decoded.reaction.emoji,
+                    originalMessage = decoded.reaction.targetBody,
+                    isRemoval = decoded.reaction.operation == ReactionWireCodec.Operation.REMOVE,
+                ),
+                targetMessage = target,
+                realm = realm,
+            )
+            attempt.state = ReactionAttempt.State.SENT.name
+        }
+        ReactionCallbackResult.SENT
+    }
+
+    private fun loadReactionSnapshot(request: SendReactionRequest): ReactionSnapshot? =
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            val target = realm.where(Message::class.java)
+                .equalTo("id", request.targetMessageId)
+                .findFirst()
+                ?.takeIf { message ->
+                    message.threadId == request.expectedThreadId &&
+                        message.subId == request.expectedSubscriptionId &&
+                        !message.isEmojiReaction
+                }
+                ?: return@use null
+            ReactionSnapshot(
+                target = realm.copyFromRealm(target),
+            )
+        }
+
+    private fun Message.toReactionCarrier(): ReactionWireCodec.Carrier =
+        ReactionWireCodec.Carrier(
+            transport = if (isMms()) {
+                ReactionWireCodec.Transport.MMS
+            } else {
+                ReactionWireCodec.Transport.SMS
+            },
+            body = getText(false),
+            mediaPartCount = if (isMms()) {
+                parts.count { part ->
+                    part.type.lowercase().let { type ->
+                        type != "text/plain" && type != "application/smil"
+                    }
+                }
+            } else {
+                0
+            },
+        )
+
+    private fun syncHiddenReactionCarrier(
+        uri: Uri,
+        attemptId: String,
+        expectedThreadId: Long,
+        expectedSubscriptionId: Int,
+        expectedBody: String,
+        sendAsGroup: Boolean,
+    ): String? {
+        return try {
+        val type = when {
+            uri.toString().startsWith(Mms.CONTENT_URI.toString()) -> TYPE_MMS
+            uri.toString().startsWith(Sms.CONTENT_URI.toString()) -> TYPE_SMS
+            else -> return null
+        }
+        val contentId = ContentUris.parseId(uri)
+        val stableUri = ContentUris.withAppendedId(
+            if (type == TYPE_MMS) Mms.CONTENT_URI else Sms.CONTENT_URI,
+            contentId,
+        )
+        val message = context.contentResolver.query(stableUri, null, null, null, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) return null
+            cursorToMessage.map(Pair(cursor, CursorToMessage.MessageColumns(cursor))).apply {
+                this.sendAsGroup = sendAsGroup
+                isEmojiReaction = true
+                if (isMms()) {
+                    parts = RealmList<MmsPart>().apply {
+                        addAll(cursorToPart.getPartsCursor(contentId)?.map { cursorToPart.map(it) }.orEmpty())
+                    }
+                }
+            }
+        } ?: return null
+        if (
+            message.threadId != expectedThreadId || message.subId != expectedSubscriptionId ||
+            message.getText(false) != expectedBody
+        ) {
+            return null
+        }
+        val transportKey = ReactionTransportPolicy.ProviderIdentity.from(message)?.encode()
+            ?: return null
+
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            val attempt = realm.where(ReactionAttempt::class.java)
+                .equalTo("id", attemptId)
+                .findFirst()
+                ?.takeIf { candidate -> candidate.state == ReactionAttempt.State.PREPARING.name }
+                ?: return null
+            realm.executeTransaction {
+                realm.insertOrUpdate(message)
+                attempt.transportKey = transportKey
+            }
+            realm.executeTransaction {
+                check(attempt.state == ReactionAttempt.State.PREPARING.name)
+                check(attempt.transportKey == transportKey)
+                attempt.handoffAt = now()
+                attempt.state = ReactionAttempt.State.HANDOFF.name
+            }
+        }
+        transportKey
+        } catch (_: Exception) {
+            Timber.e("failed to hide reaction carrier before submission")
+            null
+        }
+    }
+
+    private fun markReactionSubmitted(attemptId: String, transportKey: String) {
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            realm.where(ReactionAttempt::class.java)
+                .equalTo("id", attemptId)
+                .equalTo("transportKey", transportKey)
+                .equalTo("state", ReactionAttempt.State.HANDOFF.name)
+                .findFirst()
+                ?.let { attempt ->
+                    realm.executeTransaction { attempt.state = ReactionAttempt.State.SUBMITTED.name }
+                }
+        }
+    }
+
+    private fun failReactionAttempt(attemptId: String, transportKey: String? = null) {
+        transportKey?.let { key ->
+            val identity = ReactionTransportPolicy.ProviderIdentity.decode(key)
+            if (identity != null) {
+                Realm.getDefaultInstance().use { realm ->
+                    realm.refresh()
+                    ReactionAttemptReconciler.findMessage(realm, identity)
+                        ?.id
+                        ?.let { messageId -> markFailed(messageId, Activity.RESULT_CANCELED) }
+                }
+            }
+        }
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            realm.where(ReactionAttempt::class.java)
+                .equalTo("id", attemptId)
+                .findFirst()
+                ?.takeUnless { attempt -> attempt.state == ReactionAttempt.State.SENT.name }
+                ?.let { attempt ->
+                    realm.executeTransaction { attempt.state = ReactionAttempt.State.FAILED.name }
+                }
+        }
+    }
+
+    private fun resolveReactionRoute(
+        target: Message,
+        request: SendReactionRequest,
+    ): ReactionRouteResolution = when (target.type) {
+        TYPE_SMS -> when (
+            val resolved = smsReactionRouteResolver.resolve(
+                OneToOneSmsReactionRouteRequest(
+                    providerSmsId = target.contentId,
+                    navigationThreadId = request.expectedThreadId,
+                    activeSubscriptionId = request.expectedSubscriptionId,
+                    region = request.region,
+                    targetBody = target.getText(false),
+                )
+            )
+        ) {
+            is OneToOneSmsReactionRouteResult.Resolved -> ReactionRouteResolution.Resolved(
+                ReactionRoute.Sms(resolved.route, target.getText(false))
+            )
+            is OneToOneSmsReactionRouteResult.Rejected -> ReactionRouteResolution.Rejected(
+                SendReactionResult.Rejection.ROUTE_UNAVAILABLE
+            )
+        }
+
+        TYPE_MMS -> {
+            val oneToOne = oneToOneMmsReactionRouteResolver.resolve(
+                OneToOneMmsReactionRouteRequest(
+                    providerMmsId = target.contentId,
+                    navigationThreadId = request.expectedThreadId,
+                    activeSubscriptionId = request.expectedSubscriptionId,
+                    region = request.region,
+                )
+            )
+            val group = groupReactionRouteResolver.resolve(
+                GroupMmsReactionRouteRequest(
+                    targetMmsId = target.contentId,
+                    navigationThreadId = request.expectedThreadId,
+                    activeSubscriptionId = request.expectedSubscriptionId,
+                    region = request.region,
+                )
+            )
+            when {
+                oneToOne is OneToOneMmsReactionRouteResult.Resolved &&
+                    group is GroupMmsReactionRouteResult.Rejected ->
+                    ReactionRouteResolution.Resolved(ReactionRoute.OneToOneMms(oneToOne.route))
+                oneToOne is OneToOneMmsReactionRouteResult.Rejected &&
+                    group is GroupMmsReactionRouteResult.Resolved ->
+                    ReactionRouteResolution.Resolved(ReactionRoute.GroupMms(group.route))
+                oneToOne is OneToOneMmsReactionRouteResult.Rejected &&
+                    group is GroupMmsReactionRouteResult.Rejected &&
+                    group.reason == GroupMmsReactionRouteRejection.NOT_TRUE_GROUP ->
+                    ReactionRouteResolution.Rejected(SendReactionResult.Rejection.FAN_OUT_FORBIDDEN)
+                else -> ReactionRouteResolution.Rejected(
+                    SendReactionResult.Rejection.ROUTE_UNAVAILABLE
+                )
+            }
+        }
+
+        else -> ReactionRouteResolution.Rejected(SendReactionResult.Rejection.ROUTE_UNAVAILABLE)
+    }
+
+    private fun persistReactionProof(
+        reservation: ReactionAttemptReservation,
+        targetIdentity: ReactionTransportPolicy.ProviderIdentity,
+        route: ReactionRoute,
+        stagingIdentity: ReactionTransportPolicy.StagingIdentity,
+        body: String,
+    ): Boolean {
+        var persisted = false
+        Realm.getDefaultInstance().use { realm ->
+            realm.refresh()
+            realm.executeTransaction { transactionRealm ->
+                val attempt = transactionRealm.where(ReactionAttempt::class.java)
+                    .equalTo("id", reservation.attemptId)
+                    .equalTo("ownerSessionId", reservation.ownerSessionId)
+                    .equalTo("targetKey", targetIdentity.encode())
+                    .equalTo("state", ReactionAttempt.State.PREPARING.name)
+                    .isNull("transportKey")
+                    .findFirst()
+                    ?: return@executeTransaction
+                if (
+                    attempt.routeKind.isNotEmpty() || attempt.routeDirection.isNotEmpty() ||
+                    attempt.routeFingerprint.isNotEmpty() ||
+                    attempt.routeRegion.isNotEmpty() || attempt.targetBodyFingerprint.isNotEmpty() ||
+                    attempt.body.isNotEmpty() || attempt.bodyFingerprint.isNotEmpty()
+                ) {
+                    return@executeTransaction
+                }
+                attempt.transportKey = stagingIdentity.encode()
+                attempt.routeKind = route.kind
+                attempt.routeDirection = route.direction
+                attempt.routeFingerprint = route.participantFingerprint
+                attempt.routeRegion = route.region
+                attempt.targetBodyFingerprint = route.targetBodyFingerprint
+                attempt.body = body
+                attempt.bodyFingerprint = sha256ReactionBody(body)
+                persisted = true
+            }
+        }
+        return persisted
+    }
+
+    private fun verifyPersistedReactionProof(
+        attemptId: String,
+        route: ReactionRoute,
+        body: String,
+        stableTransportKey: String? = null,
+    ): Boolean = Realm.getDefaultInstance().use { realm ->
+        realm.refresh()
+        val attempt = realm.where(ReactionAttempt::class.java)
+            .equalTo("id", attemptId)
+            .findFirst()
+            ?: return@use false
+        val transportMatches = if (stableTransportKey == null) {
+            val staging = attempt.transportKey
+                ?.let(ReactionTransportPolicy.StagingIdentity::decode)
+                ?: return@use false
+            attempt.state == ReactionAttempt.State.PREPARING.name &&
+                staging.type == route.carrierType &&
+                staging.threadId == attempt.threadId
+        } else {
+            attempt.state == ReactionAttempt.State.HANDOFF.name &&
+                attempt.transportKey == stableTransportKey &&
+                ReactionTransportPolicy.ProviderIdentity.decode(stableTransportKey) != null
+        }
+        transportMatches && attempt.routeKind == route.kind &&
+            ReactionRouteDirectionPolicy.matches(attempt.routeDirection, route.direction) &&
+            attempt.routeFingerprint == route.participantFingerprint &&
+            attempt.routeRegion == route.region &&
+            attempt.targetBodyFingerprint == route.targetBodyFingerprint &&
+            attempt.body == body && attempt.bodyFingerprint == sha256ReactionBody(body)
+    }
+
+    private fun reverifyReactionRoute(route: ReactionRoute): Boolean = when (route) {
+        is ReactionRoute.Sms ->
+            smsReactionRouteResolver.reverify(route.proof) ==
+                OneToOneSmsReactionRouteResult.Resolved(route.proof)
+        is ReactionRoute.OneToOneMms ->
+            oneToOneMmsReactionRouteResolver.reverify(route.proof) ==
+                OneToOneMmsReactionRouteResult.Resolved(route.proof)
+        is ReactionRoute.GroupMms ->
+            groupReactionRouteResolver.reverify(route.proof) ==
+                GroupMmsReactionRouteResult.Resolved(route.proof)
+    }
+
+    private fun reverifyPersistedReactionRoute(
+        attempt: ReactionAttempt,
+        target: Message,
+    ): Boolean {
+        val targetIdentity = ReactionTransportPolicy.ProviderIdentity.from(target) ?: return false
+        if (
+            targetIdentity.encode() != attempt.targetKey ||
+            target.threadId != attempt.threadId ||
+            target.subId < 0 ||
+            attempt.routeRegion.length != 2
+        ) {
+            return false
+        }
+        val current = when (attempt.routeKind) {
+            ReactionRoute.KIND_ONE_TO_ONE_SMS -> {
+                if (target.type != TYPE_SMS) return false
+                val result = smsReactionRouteResolver.resolve(
+                    OneToOneSmsReactionRouteRequest(
+                        providerSmsId = target.contentId,
+                        navigationThreadId = target.threadId,
+                        activeSubscriptionId = target.subId,
+                        region = attempt.routeRegion,
+                        targetBody = target.getText(false),
+                    )
+                ) as? OneToOneSmsReactionRouteResult.Resolved ?: return false
+                ReactionRoute.Sms(result.route, target.getText(false))
+            }
+            ReactionRoute.KIND_ONE_TO_ONE_MMS -> {
+                if (target.type != TYPE_MMS) return false
+                val result = oneToOneMmsReactionRouteResolver.resolve(
+                    OneToOneMmsReactionRouteRequest(
+                        providerMmsId = target.contentId,
+                        navigationThreadId = target.threadId,
+                        activeSubscriptionId = target.subId,
+                        region = attempt.routeRegion,
+                    )
+                ) as? OneToOneMmsReactionRouteResult.Resolved ?: return false
+                if (result.route.targetBody != target.getText(false)) return false
+                ReactionRoute.OneToOneMms(result.route)
+            }
+            ReactionRoute.KIND_TRUE_GROUP_MMS -> {
+                if (target.type != TYPE_MMS) return false
+                val result = groupReactionRouteResolver.resolve(
+                    GroupMmsReactionRouteRequest(
+                        targetMmsId = target.contentId,
+                        navigationThreadId = target.threadId,
+                        activeSubscriptionId = target.subId,
+                        region = attempt.routeRegion,
+                    )
+                ) as? GroupMmsReactionRouteResult.Resolved ?: return false
+                if (result.route.targetBody != target.getText(false)) return false
+                ReactionRoute.GroupMms(result.route)
+            }
+            else -> return false
+        }
+        return ReactionRouteDirectionPolicy.matches(attempt.routeDirection, current.direction) &&
+            attempt.routeFingerprint == current.participantFingerprint &&
+            attempt.routeRegion == current.region &&
+            attempt.targetBodyFingerprint == current.targetBodyFingerprint &&
+            attempt.bodyFingerprint == sha256ReactionBody(attempt.body)
+    }
+
+    private fun sha256ReactionBody(body: String): String = MessageDigest
+        .getInstance("SHA-256")
+        .digest(body.toByteArray(Charsets.UTF_8))
+        .joinToString("") { byte -> "%02x".format(Locale.ROOT, byte.toInt() and 0xff) }
+
+    private data class ReactionSnapshot(val target: Message)
+
+    private sealed class ReactionRoute {
+        abstract val kind: String
+        abstract val carrierType: String
+        abstract val region: String
+        abstract val direction: String
+        abstract val participantFingerprint: String
+        abstract val targetBodyFingerprint: String
+        abstract val targetCarrier: ReactionWireCodec.Carrier
+
+        data class Sms(
+            val proof: OneToOneSmsReactionRoute,
+            val targetBody: String,
+        ) : ReactionRoute() {
+            override val kind = KIND_ONE_TO_ONE_SMS
+            override val carrierType = TYPE_SMS
+            override val region = proof.region
+            override val direction = proof.direction.name
+            override val participantFingerprint = proof.participantFingerprint
+            override val targetBodyFingerprint = proof.targetBodyFingerprint
+            override val targetCarrier = ReactionWireCodec.Carrier(
+                transport = ReactionWireCodec.Transport.SMS,
+                body = targetBody,
+                mediaPartCount = 0,
+            )
+        }
+
+        data class OneToOneMms(val proof: OneToOneMmsReactionRoute) : ReactionRoute() {
+            override val kind = KIND_ONE_TO_ONE_MMS
+            override val carrierType = TYPE_SMS
+            override val region = proof.region
+            override val direction = proof.direction.name
+            override val participantFingerprint = proof.participantFingerprint
+            override val targetBodyFingerprint = proof.bodyFingerprint
+            override val targetCarrier = ReactionWireCodec.Carrier(
+                transport = ReactionWireCodec.Transport.MMS,
+                body = proof.targetBody,
+                mediaPartCount = 0,
+            )
+        }
+
+        data class GroupMms(val proof: GroupMmsReactionRoute) : ReactionRoute() {
+            override val kind = KIND_TRUE_GROUP_MMS
+            override val carrierType = TYPE_MMS
+            override val region = proof.region
+            override val direction = proof.direction.name
+            override val participantFingerprint = proof.participantFingerprint
+            override val targetBodyFingerprint = proof.bodyFingerprint
+            override val targetCarrier = ReactionWireCodec.Carrier(
+                transport = ReactionWireCodec.Transport.MMS,
+                body = proof.targetBody,
+                mediaPartCount = 0,
+            )
+        }
+
+        companion object {
+            const val KIND_ONE_TO_ONE_SMS = "ONE_TO_ONE_SMS"
+            const val KIND_ONE_TO_ONE_MMS = "ONE_TO_ONE_MMS"
+            const val KIND_TRUE_GROUP_MMS = "TRUE_GROUP_MMS"
+        }
+    }
+
+    private sealed class ReactionRouteResolution {
+        data class Resolved(val route: ReactionRoute) : ReactionRouteResolution()
+        data class Rejected(
+            val reason: SendReactionResult.Rejection,
+        ) : ReactionRouteResolution()
+    }
 
     override fun cancelDelayedSmsAlarm(messageId: Long) =
         (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
@@ -746,21 +1466,9 @@ open class MessageRepositoryImpl @Inject constructor(
             realm.executeTransaction { managedMessage = realm.copyToRealmOrUpdate(message) }
 
             managedMessage?.let { savedMessage ->
-                val parsedReaction = reactions.parseEmojiReaction(body)
-                if (parsedReaction != null) {
-                    val targetMessage = reactions.findTargetMessage(
-                        savedMessage.threadId,
-                        parsedReaction.originalMessage,
-                        realm
-                    )
-                    realm.executeTransaction {
-                        reactions.saveEmojiReaction(
-                            savedMessage,
-                            parsedReaction,
-                            targetMessage,
-                            realm,
-                        )
-                    }
+                realm.executeTransaction {
+                    ReactionAttemptReconciler.reconcileCarrier(realm, savedMessage)
+                    reactions.processEmojiReaction(savedMessage, realm)
                 }
             }
         }
@@ -816,7 +1524,7 @@ open class MessageRepositoryImpl @Inject constructor(
         }
 
     override fun markSent(messageId: Long) {
-        Timber.v("mark message id $messageId as sent")
+        Timber.v("mark message as sent")
 
         Realm.getDefaultInstance().use { realm ->
             realm.refresh()
@@ -852,7 +1560,7 @@ open class MessageRepositoryImpl @Inject constructor(
 
     override fun markFailed(messageId: Long, resultCode: Int) =
         Realm.getDefaultInstance().use { realm ->
-            Timber.v("mark message id $messageId as failed. code $resultCode")
+            Timber.v("mark message as failed with transport code $resultCode")
 
             realm.refresh()
 
@@ -915,7 +1623,7 @@ open class MessageRepositoryImpl @Inject constructor(
 
     override fun markDelivered(messageId: Long) =
         Realm.getDefaultInstance().use { realm ->
-            Timber.v("mark message id $messageId as delivered")
+            Timber.v("mark message as delivered")
 
             realm.refresh()
 
@@ -947,7 +1655,7 @@ open class MessageRepositoryImpl @Inject constructor(
 
     override fun markDeliveryFailed(messageId: Long, resultCode: Int) =
         Realm.getDefaultInstance().use { realm ->
-            Timber.v("mark message id $messageId as delivery failed result code $resultCode")
+            Timber.v("mark delivery as failed with transport code $resultCode")
 
             realm.refresh()
 

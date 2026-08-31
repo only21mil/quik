@@ -194,18 +194,13 @@ public class MmsReceivedService extends IntentService {
                         false, null, 0);
             }
 
-            return Utils.ensureRouteToMmsNetwork(mContext, mmscUrl, mTransactionSettings.getProxyAddress(), new Utils.Task<byte[]>() {
-                @Override
-                public byte[] run() throws IOException {
-                    return HttpUtils.httpConnection(
-                            mContext, token,
-                            mmscUrl,
-                            pdu, HttpUtils.HTTP_POST_METHOD,
-                            mTransactionSettings.isProxySet(),
-                            mTransactionSettings.getProxyAddress(),
-                            mTransactionSettings.getProxyPort());
-                }
-            });
+            return HttpUtils.httpConnection(
+                    mContext, token,
+                    mmscUrl,
+                    pdu, HttpUtils.HTTP_POST_METHOD,
+                    mTransactionSettings.isProxySet(),
+                    mTransactionSettings.getProxyAddress(),
+                    mTransactionSettings.getProxyPort());
         }
 
         public abstract void run() throws IOException;

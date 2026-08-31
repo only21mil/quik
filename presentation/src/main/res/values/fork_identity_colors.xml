@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fork_launcher_background">#050505</color>
+    <color name="fork_launcher_foreground">#F5F2EA</color>
+    <color name="fork_launcher_reaction">#FF9F0A</color>
+</resources>

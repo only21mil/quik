@@ -59,6 +59,7 @@ import dev.octoshrimpy.quik.interactor.AddScheduledMessage
 import dev.octoshrimpy.quik.interactor.DeleteMessages
 import dev.octoshrimpy.quik.interactor.MarkRead
 import dev.octoshrimpy.quik.interactor.SendExistingMessage
+import dev.octoshrimpy.quik.interactor.SendReaction
 import dev.octoshrimpy.quik.interactor.SaveImage
 import dev.octoshrimpy.quik.interactor.SendNewMessage
 import dev.octoshrimpy.quik.manager.ActiveConversationManager
@@ -73,6 +74,7 @@ import dev.octoshrimpy.quik.model.getText
 import dev.octoshrimpy.quik.repository.ContactRepository
 import dev.octoshrimpy.quik.repository.ConversationRepository
 import dev.octoshrimpy.quik.repository.MessageRepository
+import dev.octoshrimpy.quik.repository.ReactionPendingAttemptGate
 import dev.octoshrimpy.quik.repository.ScheduledMessageRepository
 import dev.octoshrimpy.quik.util.ActiveSubscriptionObservable
 import dev.octoshrimpy.quik.util.FileUtils
@@ -127,6 +129,8 @@ class ComposeViewModel @Inject constructor(
     private val prefs: Preferences,
     private val sendExistingMessage: SendExistingMessage,
     private val sendNewMessage: SendNewMessage,
+    sendReaction: SendReaction,
+    pendingReactionAttemptGate: ReactionPendingAttemptGate,
     private val subscriptionManager: SubscriptionManagerCompat,
     private val saveImage: SaveImage,
 ) : QkViewModel<ComposeView, ComposeState>(ComposeState(
@@ -140,6 +144,11 @@ class ComposeViewModel @Inject constructor(
     private val selectedChips: Subject<List<Recipient>> = BehaviorSubject.createDefault(listOf())
     private val searchResults: Subject<List<Message>> = BehaviorSubject.create()
     private val searchSelection: Subject<Long> = BehaviorSubject.createDefault(-1)
+    private val reactionNavigation: Subject<ReactionNavigationSnapshot> = BehaviorSubject.create()
+    private val reactionSubmissionCoordinator = ReactionSubmissionCoordinator(
+        dispatcher = ReactionRequestDispatcher(sendReaction, ::logReactionSubmissionError),
+        pendingAttemptGate = pendingReactionAttemptGate,
+    )
 
     private var shouldShowContacts = threadId == 0L && addresses.isEmpty()
     private var showScheduledToast = false
@@ -200,6 +209,21 @@ class ComposeViewModel @Inject constructor(
                 conversation.isValid.also { if (!it) newState { copy(hasError = true) } }
             }
             .subscribe(conversation::onNext)
+
+        disposables += Observables.combineLatest(
+            conversation.map { currentConversation -> currentConversation.id }.distinctUntilChanged(),
+            state.map { currentState ->
+                currentState.threadId to currentState.subscription?.subscriptionId
+            }.distinctUntilChanged(),
+        ) { conversationThreadId, (stateThreadId, selectedSubscriptionId) ->
+            ReactionNavigationSnapshot(
+                conversationThreadId = conversationThreadId,
+                stateThreadId = stateThreadId,
+                selectedSubscriptionId = selectedSubscriptionId,
+            )
+        }
+            .distinctUntilChanged()
+            .subscribe(reactionNavigation::onNext)
 
         if (addresses.isNotEmpty())
             selectedChips.onNext(addresses.map { address -> Recipient(address = address) })
@@ -312,6 +336,14 @@ class ComposeViewModel @Inject constructor(
     }
 
     @SuppressLint("StringFormatInvalid")
+    private fun logReactionSubmissionError(error: ReactionSubmissionErrorLog) {
+        Timber.e(
+            "Reaction submission failed: class=%s cause=%s",
+            error.throwableClass,
+            error.causeClass ?: "none",
+        )
+    }
+
     override fun bindView(view: ComposeView) {
         super.bindView(view)
 
@@ -779,6 +811,129 @@ class ComposeViewModel @Inject constructor(
             }
             .autoDisposable(view.scope())
             .subscribe { reactions -> view.showReactionsDialog(reactions) }
+
+        // Re-read mutable routing facts after the picker closes. The transport repository
+        // performs its own final snapshot check before staging the carrier.
+        view.reactionSelectedIntent
+            .withLatestFrom(reactionNavigation) { selection, navigation ->
+                val activeSubscriptions = subscriptionManager.activeSubscriptionInfoList
+                val routeSubscriptionId = navigation.selectedSubscriptionId
+                    ?: activeSubscriptions.singleOrNull()?.subscriptionId
+                ReactionSubmissionSelection(
+                    messageId = selection.first,
+                    emoji = selection.second,
+                    navigationThreadId = navigation.conversationThreadId,
+                    stateThreadId = navigation.stateThreadId,
+                    selectedSubscriptionId = navigation.selectedSubscriptionId,
+                    region = activeSubscriptions
+                        .singleOrNull { subscription ->
+                            subscription.subscriptionId == routeSubscriptionId
+                        }
+                        ?.countryIso
+                        .orEmpty(),
+                )
+            }
+            .flatMap { selection ->
+                Observable.fromCallable {
+                    val refreshedTarget = messageRepo.getUnmanagedMessage(selection.messageId)
+                    val refreshedConversationId = conversationRepo
+                        .getConversation(selection.navigationThreadId)
+                        ?.id
+                    val activeSubscriptions = subscriptionManager.activeSubscriptionInfoList
+
+                    ReactionSubmissionSnapshot(
+                        selection = selection,
+                        refreshedConversationId = refreshedConversationId,
+                        refreshedTargetId = refreshedTarget?.id,
+                        targetThreadId = refreshedTarget?.threadId,
+                        targetSubscriptionId = refreshedTarget?.subId,
+                        activeSubscriptionIds = activeSubscriptions
+                            .map { subscription -> subscription.subscriptionId }
+                            .toSet(),
+                        region = activeSubscriptions
+                            .singleOrNull { subscription ->
+                                subscription.subscriptionId == (
+                                    selection.selectedSubscriptionId
+                                        ?: activeSubscriptions.singleOrNull()?.subscriptionId
+                                    )
+                            }
+                            ?.countryIso
+                            .orEmpty(),
+                        isDefaultSms = permissionManager.isDefaultSms(),
+                        hasSendSms = permissionManager.hasSendSms(),
+                        targetIsReaction = refreshedTarget?.isEmojiReaction ?: true,
+                        targetIsFailed = refreshedTarget?.isFailedMessage() ?: true,
+                        targetHasText = refreshedTarget?.hasNonWhitespaceText() ?: false,
+                        targetHasNonTextParts = refreshedTarget?.parts?.any { part ->
+                            !part.isSmil() && !part.isText()
+                        } ?: true,
+                        localReactionEmojis = refreshedTarget?.emojiReactions
+                            ?.filter { reaction -> reaction.fromMe == true }
+                            ?.map { reaction -> reaction.emoji }
+                            ?.toSet()
+                            .orEmpty(),
+                    )
+                }
+                    .withLatestFrom(reactionNavigation) { snapshot, currentNavigation ->
+                        val selected = snapshot.selection
+                        ReactionSubmissionPolicy.decide(
+                            ReactionSubmissionFacts(
+                                selectedMessageId = selected.messageId,
+                                selectedEmoji = selected.emoji,
+                                navigationThreadId = selected.navigationThreadId,
+                                stateThreadId = selected.stateThreadId,
+                                currentNavigationThreadId =
+                                    currentNavigation.conversationThreadId,
+                                currentStateThreadId = currentNavigation.stateThreadId,
+                                refreshedConversationId = snapshot.refreshedConversationId,
+                                refreshedTargetId = snapshot.refreshedTargetId,
+                                targetThreadId = snapshot.targetThreadId,
+                                targetSubscriptionId = snapshot.targetSubscriptionId,
+                                selectedSubscriptionId = selected.selectedSubscriptionId,
+                                currentSelectedSubscriptionId =
+                                    currentNavigation.selectedSubscriptionId,
+                                activeSubscriptionIds = snapshot.activeSubscriptionIds,
+                                selectedRegion = selected.region,
+                                region = snapshot.region,
+                                isDefaultSms = snapshot.isDefaultSms,
+                                hasSendSms = snapshot.hasSendSms,
+                                targetIsReaction = snapshot.targetIsReaction,
+                                targetIsFailed = snapshot.targetIsFailed,
+                                targetHasText = snapshot.targetHasText,
+                                targetHasNonTextParts = snapshot.targetHasNonTextParts,
+                                localReactionEmojis = snapshot.localReactionEmojis,
+                            )
+                        )
+                    }
+                    .flatMap { decision ->
+                        reactionSubmissionCoordinator.dispatch(decision).toObservable()
+                    }
+                    .doOnError { error ->
+                        logReactionSubmissionError(ReactionSubmissionErrorLog.from(error))
+                    }
+                    .onErrorReturn {
+                        ReactionDispatchResult.Rejected(
+                            ReactionSubmissionRejection.TRANSPORT_REJECTED
+                        )
+                    }
+                    .subscribeOn(Schedulers.io())
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDisposable(view.scope())
+            .subscribe { result ->
+                if (result is ReactionDispatchResult.Rejected) {
+                    when (result.reason) {
+                        ReactionSubmissionRejection.DEFAULT_SMS_REQUIRED -> view.requestDefaultSms()
+                        ReactionSubmissionRejection.SEND_SMS_REQUIRED -> view.requestSmsPermission()
+                        else -> context.makeToast(R.string.reaction_send_rejected)
+                    }
+                    Timber.w(
+                        "Reaction submission rejected: %s/%s",
+                        result.reason,
+                        result.transportReason,
+                    )
+                }
+            }
 
         // Set the current conversation
         Observables

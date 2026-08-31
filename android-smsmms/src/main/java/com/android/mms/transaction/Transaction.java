@@ -183,18 +183,13 @@ public abstract class Transaction extends Observable {
                     false, null, 0);
         }
 
-        return Utils.ensureRouteToMmsNetwork(mContext, mmscUrl, mTransactionSettings.getProxyAddress(), new Utils.Task<byte[]>() {
-            @Override
-            public byte[] run() throws IOException {
-                return HttpUtils.httpConnection(
-                        mContext, token,
-                        mmscUrl,
-                        pdu, HttpUtils.HTTP_POST_METHOD,
-                        mTransactionSettings.isProxySet(),
-                        mTransactionSettings.getProxyAddress(),
-                        mTransactionSettings.getProxyPort());
-            }
-        });
+        return HttpUtils.httpConnection(
+                mContext, token,
+                mmscUrl,
+                pdu, HttpUtils.HTTP_POST_METHOD,
+                mTransactionSettings.isProxySet(),
+                mTransactionSettings.getProxyAddress(),
+                mTransactionSettings.getProxyPort());
     }
 
     /**
@@ -223,20 +218,15 @@ public abstract class Transaction extends Observable {
                     0);
         }
 
-        return Utils.ensureRouteToMmsNetwork(mContext, url, mTransactionSettings.getProxyAddress(), new Utils.Task<byte[]>() {
-            @Override
-            public byte[] run() throws IOException {
-                return HttpUtils.httpConnection(
-                        mContext,
-                        SendingProgressTokenManager.NO_TOKEN,
-                        url,
-                        null,
-                        HttpUtils.HTTP_GET_METHOD,
-                        mTransactionSettings.isProxySet(),
-                        mTransactionSettings.getProxyAddress(),
-                        mTransactionSettings.getProxyPort());
-            }
-        });
+        return HttpUtils.httpConnection(
+                mContext,
+                SendingProgressTokenManager.NO_TOKEN,
+                url,
+                null,
+                HttpUtils.HTTP_GET_METHOD,
+                mTransactionSettings.isProxySet(),
+                mTransactionSettings.getProxyAddress(),
+                mTransactionSettings.getProxyPort());
     }
 
     public static boolean useWifi(Context context) {

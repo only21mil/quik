@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="compose">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="dev.octoshrimpy.quik.feature.compose.ComposeActivity"
+            android:targetPackage="io.github.only21mil.quik.reactions.debug" />
+        <intent
+            android:action="example.arbitrary.EXTRA_ACTION"
+            android:targetClass="dev.octoshrimpy.quik.feature.compose.ComposeActivity"
+            android:targetPackage="io.github.only21mil.quik.reactions.debug" />
+    </shortcut>
+</shortcuts>

@@ -58,7 +58,7 @@ public class DownloadRequest extends MmsRequest {
     private final PendingIntent mDownloadedIntent;
     private final Uri mContentUri;
 
-    public DownloadRequest(RequestManager manager, int subId, String locationUrl,
+    DownloadRequest(RequestManager manager, int subId, String locationUrl,
             Uri contentUri, PendingIntent downloadedIntent, String creator,
             Bundle configOverrides, Context context) throws MmsException {
         super(manager, subId, creator, configOverrides);

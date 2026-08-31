@@ -39,10 +39,9 @@ fun <T> tryOrNull(logOnError: Boolean = true, body: () -> T?): T? {
     }
 }
 
-fun nonDebugPackageName(packageName: String): String {
-    return if (packageName.endsWith(".debug")) packageName.removeSuffix(".debug")
-    else packageName
-}
+private const val SOURCE_PACKAGE_NAME = "dev.octoshrimpy.quik"
+
+fun sourceClassName(relativeClassName: String): String = SOURCE_PACKAGE_NAME + relativeClassName
 
 fun sha256(input: String): String {
     val digest = sha256Digest.get()

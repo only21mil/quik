@@ -51,7 +51,9 @@ import dev.octoshrimpy.quik.manager.KeyManager
 import dev.octoshrimpy.quik.manager.KeyManagerImpl
 import dev.octoshrimpy.quik.manager.NotificationManager
 import dev.octoshrimpy.quik.manager.PermissionManager
+import dev.octoshrimpy.quik.manager.PermissionBackedReactionRuntimeAuthority
 import dev.octoshrimpy.quik.manager.PermissionManagerImpl
+import dev.octoshrimpy.quik.manager.ReactionRuntimeAuthority
 import dev.octoshrimpy.quik.manager.RatingManager
 import dev.octoshrimpy.quik.manager.ReferralManager
 import dev.octoshrimpy.quik.manager.ReferralManagerImpl
@@ -87,6 +89,8 @@ import dev.octoshrimpy.quik.repository.MessageContentFilterRepository
 import dev.octoshrimpy.quik.repository.MessageContentFilterRepositoryImpl
 import dev.octoshrimpy.quik.repository.MessageRepository
 import dev.octoshrimpy.quik.repository.MessageRepositoryImpl
+import dev.octoshrimpy.quik.repository.ReactionPendingAttemptGate
+import dev.octoshrimpy.quik.repository.RealmReactionPendingAttemptGate
 import dev.octoshrimpy.quik.repository.ScheduledMessageRepository
 import dev.octoshrimpy.quik.repository.ScheduledMessageRepositoryImpl
 import dev.octoshrimpy.quik.repository.SyncRepository
@@ -128,6 +132,18 @@ class AppModule(private var application: Application) {
 
     @Provides
     fun provideViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory = factory
+
+    @Provides
+    @Singleton
+    fun provideReactionPendingAttemptGate(
+        gate: RealmReactionPendingAttemptGate,
+    ): ReactionPendingAttemptGate = gate
+
+    @Provides
+    @Singleton
+    fun provideReactionRuntimeAuthority(
+        authority: PermissionBackedReactionRuntimeAuthority,
+    ): ReactionRuntimeAuthority = authority
 
     // Listener
 

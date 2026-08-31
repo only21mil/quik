@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import dagger.android.AndroidInjection
-import dev.octoshrimpy.quik.util.nonDebugPackageName
+import dev.octoshrimpy.quik.util.sourceClassName
 
 class StartActivityFromWidgetReceiver : BroadcastReceiver() {
     // why does this shim class exist rather than the widget launching activities more directly?
@@ -35,11 +35,14 @@ class StartActivityFromWidgetReceiver : BroadcastReceiver() {
     // on the activityToStart value, launches the appropriate activity
 
     companion object {
+        const val ACTION_START_ACTIVITY = "dev.octoshrimpy.quik.action.START_ACTIVITY_FROM_WIDGET"
         const val COMPOSE_ACTIVITY = ".feature.compose.ComposeActivity"
         const val MAIN_ACTIVITY = ".feature.main.MainActivity"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_START_ACTIVITY) return
+
         AndroidInjection.inject(this, context)
 
         var activityToStartName = intent.getStringExtra("activityToStart")
@@ -52,7 +55,7 @@ class StartActivityFromWidgetReceiver : BroadcastReceiver() {
         }
 
         context.startActivity(
-            Intent(context, Class.forName(nonDebugPackageName(context.packageName) + activityToStartName))
+            Intent(context, Class.forName(sourceClassName(activityToStartName)))
                 .setFlags(FLAG_ACTIVITY_NEW_TASK)
                 .putExtra("threadId", intent.getLongExtra("threadId", 0L))
         )
